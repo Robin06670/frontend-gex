@@ -21,14 +21,13 @@ const CollaboratorDetails = () => {
   const [allManagers, setAllManagers] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // ✅ Charger collaborateurs + données d'un collaborateur si modification
   useEffect(() => {
     const token = localStorage.getItem("token");
 
     fetch("http://localhost:5000/api/collaborators", {
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}` // ✅ Correction ici
+        "Authorization": `Bearer ${token}`
       }
     })
       .then(res => res.json())
@@ -38,7 +37,7 @@ const CollaboratorDetails = () => {
           return;
         }
 
-        setAllManagers(data.filter(c => c._id !== id)); // exclure soi-même
+        setAllManagers(data.filter(c => c._id !== id));
 
         if (!isNew && id) {
           const existingCollab = data.find(c => c._id === id);
@@ -86,7 +85,7 @@ const CollaboratorDetails = () => {
         method,
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}` // ✅ Correction ici
+          "Authorization": `Bearer ${token}`
         },
         body: JSON.stringify(Collaborator),
       });
@@ -111,7 +110,7 @@ const CollaboratorDetails = () => {
   return (
     <div className="flex h-screen bg-gray-100">
       <Sidebar />
-      <div className="flex-1 p-8">
+      <div className="flex-1 p-8 overflow-y-auto">
         <h1 className="text-2xl font-bold text-gray-800 mb-6">
           {isNew ? "Ajouter un collaborateur" : "Modifier le collaborateur"}
         </h1>
