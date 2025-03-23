@@ -19,7 +19,7 @@ export default function LoginPage() {
       console.log("📤 Envoi des données de connexion :", { email, password });
 
       // ✅ Envoi de la requête au backend
-      const response = await axios.post("http://localhost:5000/api/auth/login", { email, password });
+      const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/api/auth/login`, { email, password });
 
       console.log("✅ Réponse du serveur :", response.data);
 

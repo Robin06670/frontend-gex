@@ -42,7 +42,7 @@ const ClientDetails = () => {
     }
 
     axios
-      .get("http://localhost:5000/api/collaborators", {
+      .get(`${process.env.REACT_APP_API_BASE_URL}/api/collaborators`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
@@ -58,7 +58,7 @@ const ClientDetails = () => {
       console.log("📥 Tentative de récupération du client avec ID :", id);
 
       axios
-        .get(`http://localhost:5000/api/clients/${id}`, {
+        .get(`${process.env.REACT_APP_API_BASE_URL}/api/clients/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         })
         .then((res) => {
@@ -99,11 +99,11 @@ const ClientDetails = () => {
     try {
       let response;
       if (isNew) {
-        response = await axios.post("http://localhost:5000/api/clients", updatedClientData, {
+        response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/api/clients`, updatedClientData, {
           headers: { Authorization: `Bearer ${token}` },
         });
       } else {
-        response = await axios.put(`http://localhost:5000/api/clients/${id}`, updatedClientData, {
+        response = await axios.put(`${process.env.REACT_APP_API_BASE_URL}/api/clients/${id}`, updatedClientData, {
           headers: { Authorization: `Bearer ${token}` },
         });
       }

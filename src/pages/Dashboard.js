@@ -26,10 +26,10 @@ const Dashboard = () => {
         const token = localStorage.getItem("token");
 
         const [clientsRes, collaboratorsRes] = await Promise.all([
-          axios.get("http://localhost:5000/api/clients/count", {
+          axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/clients/count`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          axios.get("http://localhost:5000/api/collaborators/count-with-managers", {
+          axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/collaborators/count-with-managers`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);
@@ -52,7 +52,7 @@ const Dashboard = () => {
     const fetchCabinetData = async () => {
       try {
         const token = localStorage.getItem("token");
-        const response = await axios.get("http://localhost:5000/api/settings", {
+        const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/settings`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -78,7 +78,7 @@ const Dashboard = () => {
   const handleSaveCabinet = async () => {
     try {
       const token = localStorage.getItem("token");
-      await axios.post("http://localhost:5000/api/settings", newCabinet, {
+      await axios.post(`${process.env.REACT_APP_API_BASE_URL}/api/settings`, newCabinet, {
         headers: { Authorization: `Bearer ${token}` },
       });
 

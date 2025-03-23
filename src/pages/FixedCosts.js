@@ -31,7 +31,7 @@ const FixedCosts = () => {
     const fetchRevenue = async () => {
       try {
         const token = localStorage.getItem("token");
-        const response = await axios.get("http://localhost:5000/api/clients/revenue", {
+        const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/clients/revenue`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setRevenue(response.data.revenue);
@@ -47,7 +47,7 @@ const FixedCosts = () => {
     const fetchFixedCosts = async () => {
       try {
         const token = localStorage.getItem("token");
-        const response = await axios.get("http://localhost:5000/api/fixedcosts", {
+        const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/fixedcosts`, {
           headers: { Authorization: `Bearer ${token}` }, // ✅ correction URL
         });
         if (response.data) {
@@ -81,7 +81,7 @@ const FixedCosts = () => {
   const handleLock = async (field) => {
     try {
       const token = localStorage.getItem("token");
-      await axios.put(`http://localhost:5000/api/fixedcosts/${field}`, { value: costs[field] }, {
+      await axios.put(`${process.env.REACT_APP_API_BASE_URL}/api/fixedcosts/${field}`, { value: costs[field] }, {
         headers: { Authorization: `Bearer ${token}` }, // ✅ correction URL
       });
       setLockedFields({ ...lockedFields, [field]: true });

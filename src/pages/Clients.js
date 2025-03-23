@@ -19,10 +19,10 @@ const Clients = () => {
       try {
         const token = localStorage.getItem("token");
         const [clientsResponse, collaboratorsResponse] = await Promise.all([
-          axios.get("http://localhost:5000/api/clients", {
+          axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/clients`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          axios.get("http://localhost:5000/api/collaborators", {
+          axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/collaborators`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);
@@ -115,7 +115,7 @@ const handleDeleteClient = async (id) => {
       const token = localStorage.getItem("token");
       console.log(`🗑️ Tentative de suppression du client ID: ${id}`);
       
-      const response = await axios.delete(`http://localhost:5000/api/clients/${id}`, {
+      const response = await axios.delete(`${process.env.REACT_APP_API_BASE_URL}/api/clients/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 

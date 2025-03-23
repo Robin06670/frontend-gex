@@ -22,7 +22,7 @@ const CollaboratorClients = () => {
 
     // 🔄 Récupérer les infos du collaborateur
     axios
-      .get(`http://localhost:5000/api/collaborators/${id}`, {
+      .get(`${process.env.REACT_APP_API_BASE_URL}/api/collaborators/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => setCollaborator(res.data))
@@ -30,7 +30,7 @@ const CollaboratorClients = () => {
 
     // ✅ Récupérer les clients associés
     axios
-      .get(`http://localhost:5000/api/clients?collaborator=${id}`, {
+      .get(`${process.env.REACT_APP_API_BASE_URL}/api/clients?collaborator=${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {

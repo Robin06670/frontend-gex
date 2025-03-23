@@ -27,10 +27,10 @@ const Statistics = () => {
         const token = localStorage.getItem("token");
   
         if (activeTab === "revenue") {
-          const revenueRes = await axios.get("http://localhost:5000/api/clients/revenue", {
+          const revenueRes = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/clients/revenue`, {
             headers: { Authorization: `Bearer ${token}` },
           });
-          const revenueByCollabRes = await axios.get("http://localhost:5000/api/clients/revenue-by-collaborator", {
+          const revenueByCollabRes = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/clients/revenue-by-collaborator`, {
             headers: { Authorization: `Bearer ${token}` },
           });
   
@@ -41,16 +41,16 @@ const Statistics = () => {
           setRevenueByCollaborator(revenueByCollabRes.data);
         } 
         else if (activeTab === "gross-margin") {
-          const revenueRes = await axios.get("http://localhost:5000/api/clients/revenue", {
+          const revenueRes = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/clients/revenue`, {
             headers: { Authorization: `Bearer ${token}` },
           });
-          const payrollRes = await axios.get("http://localhost:5000/api/collaborators/payroll", {
+          const payrollRes = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/collaborators/payroll`, {
             headers: { Authorization: `Bearer ${token}` },
           });
-          const revenueByCollabRes = await axios.get("http://localhost:5000/api/clients/revenue-by-collaborator", {
+          const revenueByCollabRes = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/clients/revenue-by-collaborator`, {
             headers: { Authorization: `Bearer ${token}` },
           });
-          const payrollByCollabRes = await axios.get("http://localhost:5000/api/collaborators/payroll-by-collaborator", {
+          const payrollByCollabRes = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/collaborators/payroll-by-collaborator`, {
             headers: { Authorization: `Bearer ${token}` },
           });
   
@@ -71,10 +71,10 @@ const Statistics = () => {
           setMarginByCollaborator(updatedMargins);
         } 
         else if (activeTab === "payroll") {
-          const payrollRes = await axios.get("http://localhost:5000/api/collaborators/payroll", {
+          const payrollRes = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/collaborators/payroll`, {
             headers: { Authorization: `Bearer ${token}` },
           });
-          const payrollByCollabRes = await axios.get("http://localhost:5000/api/collaborators/payroll-by-collaborator", {
+          const payrollByCollabRes = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/collaborators/payroll-by-collaborator`, {
             headers: { Authorization: `Bearer ${token}` },
           });
   
@@ -82,10 +82,10 @@ const Statistics = () => {
           setPayrollByCollaborator(payrollByCollabRes.data);
         }
         else if (activeTab === "time-consumed") {
-          const timeByCollabRes = await axios.get("http://localhost:5000/api/collaborators/time-data", {
+          const timeByCollabRes = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/collaborators/time-data`, {
             headers: { Authorization: `Bearer ${token}` },
           });
-          const clientsByCollabRes = await axios.get("http://localhost:5000/api/collaborators/clients-by-collaborator", {
+          const clientsByCollabRes = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/collaborators/clients-by-collaborator`, {
             headers: { Authorization: `Bearer ${token}` },
           });
   
@@ -95,7 +95,7 @@ const Statistics = () => {
           setClientsByCollaborator(clientsByCollabRes.data);
         }
         else if (activeTab === "fixed-costs") {
-          const fixedCostsRes = await axios.get("http://localhost:5000/api/fixedcosts", {
+          const fixedCostsRes = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/fixedcosts`, {
             headers: { Authorization: `Bearer ${token}` },
           });
   
@@ -113,13 +113,13 @@ const Statistics = () => {
         }
   
         if (activeTab === "operating-result") {
-          const revenueRes = await axios.get("http://localhost:5000/api/clients/revenue", {
+          const revenueRes = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/clients/revenue`, {
             headers: { Authorization: `Bearer ${token}` },
           });
-          const payrollRes = await axios.get("http://localhost:5000/api/collaborators/payroll", {
+          const payrollRes = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/collaborators/payroll`, {
             headers: { Authorization: `Bearer ${token}` },
           });
-          const fixedCostsRes = await axios.get("http://localhost:5000/api/fixedcosts", {
+          const fixedCostsRes = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/fixedcosts`, {
             headers: { Authorization: `Bearer ${token}` },
           });
   

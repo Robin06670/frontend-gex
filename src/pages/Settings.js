@@ -29,7 +29,7 @@ const Settings = () => {
       }
 
       try {
-        const response = await axios.get("http://localhost:5000/api/settings", {
+        const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/settings`, {
           headers: { Authorization: token }
         });
 
@@ -67,7 +67,7 @@ const Settings = () => {
   // ✅ Sauvegarde des données dans MongoDB
   const handleSave = async () => {
     try {
-      await axios.post("http://localhost:5000/api/settings", profileData, {
+      await axios.post(`${process.env.REACT_APP_API_BASE_URL}/api/settings`, profileData, {
         headers: { Authorization: token }
       });
       alert("Modifications enregistrées !");
