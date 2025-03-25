@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Sidebar from "../components/Sidebar";
 import Topbar from "../components/Topbar";
-import { FaUsers, FaUserTie, FaThLarge, FaHome } from "react-icons/fa"; // Importer l'icône FaHome
+import { FaUsers, FaUserTie, FaThLarge, FaHome } from "react-icons/fa";
 import CountUp from "react-countup";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -10,6 +10,7 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const [stats, setStats] = useState({ clients: 0, collaborators: 0 });
   const [profileData, setProfileData] = useState(null);
+  const [user, setUser] = useState(null); // ✅ Ajouté
   const [showModal, setShowModal] = useState(false);
   const [newCabinet, setNewCabinet] = useState({
     cabinetName: "",
@@ -20,56 +21,81 @@ const Dashboard = () => {
     logo: "",
   });
 
-  useEffect(() => {
-    const fetchDashboardStats = async () => {
-      try {
-        const token = localStorage.getItem("token");
+  const fetchUser = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/auth/me`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setUser(res.data);
+    } catch (err) {
+      console.error("❌ Erreur lors de la récupération du user :", err);
+    }
+  };
 
-        const [clientsRes, collaboratorsRes] = await Promise.all([
-          axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/clients/count`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-          axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/collaborators/count-with-managers`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-        ]);
+  const fetchDashboardStats = async () => {
+    try {
+      const token = localStorage.getItem("token");
 
-        setStats({
-          clients: clientsRes.data.count,
-          collaborators: collaboratorsRes.data.count,
-        });
-
-        console.log("📊 Stats mises à jour :", {
-          clients: clientsRes.data.count,
-          collaborators: collaboratorsRes.data.count,
-        });
-
-      } catch (error) {
-        console.error("❌ Erreur lors du chargement des statistiques :", error);
-      }
-    };
-
-    const fetchCabinetData = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/settings`, {
+      const [clientsRes, collaboratorsRes] = await Promise.all([
+        axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/clients/count`, {
           headers: { Authorization: `Bearer ${token}` },
-        });
+        }),
+        axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/collaborators/count-with-managers`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+      ]);
 
-        if (response.data) {
-          setProfileData(response.data);
-        } else {
-          setShowModal(true); // Afficher la modale si aucun cabinet n'est trouvé
+      setStats({
+        clients: clientsRes.data.count,
+        collaborators: collaboratorsRes.data.count,
+      });
+
+      console.log("📊 Stats mises à jour :", {
+        clients: clientsRes.data.count,
+        collaborators: collaboratorsRes.data.count,
+      });
+    } catch (error) {
+      console.error("❌ Erreur lors du chargement des statistiques :", error);
+    }
+  };
+
+  const fetchCabinetData = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/settings`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (response.data) {
+        setProfileData(response.data);
+      } else {
+        if (user?.role === "admin") {
+          setShowModal(true);
         }
-      } catch (error) {
-        console.error("❌ Erreur lors du chargement des informations du cabinet :", error);
+      }
+    } catch (error) {
+      console.error("❌ Erreur lors du chargement des informations du cabinet :", error);
+      if (user?.role === "admin") {
         setShowModal(true);
       }
-    };
+    }
+  };
 
-    fetchCabinetData();
-    fetchDashboardStats();
+  useEffect(() => {
+    const init = async () => {
+      await fetchUser(); // D'abord récupérer l'utilisateur
+    };
+    init();
   }, []);
+  
+  // Lorsqu'on a récupéré l'user, on peut lancer les autres fetchs
+  useEffect(() => {
+    if (user) {
+      fetchCabinetData();
+      fetchDashboardStats();
+    }
+  }, [user]);  
 
   const handleChange = (e) => {
     setNewCabinet({ ...newCabinet, [e.target.name]: e.target.value });
@@ -92,14 +118,13 @@ const Dashboard = () => {
   return (
     <div className="flex h-screen bg-gray-100 overflow-hidden">
       <Sidebar />
-
       <div className="flex-1 flex flex-col h-screen overflow-y-auto">
         <Topbar />
 
         <main className="p-6 flex flex-col items-center">
           <h1 className="text-3xl font-bold mb-6 text-gray-800 flex items-center">
-            <FaHome className="text-blue-700 mr-2" /> {/* Utilisation de l'icône FaHome */}
-            Accueil {/* Changement du titre */}
+            <FaHome className="text-blue-700 mr-2" />
+            Accueil
           </h1>
 
           {profileData ? (
@@ -137,7 +162,6 @@ const Dashboard = () => {
         </main>
       </div>
 
-      {/* MODALE D'AJOUT DU CABINET */}
       {showModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
@@ -182,8 +206,10 @@ const Dashboard = () => {
               onChange={handleChange}
               className="w-full p-2 border rounded mb-4"
             />
-
-            <button onClick={handleSaveCabinet} className="bg-green-600 text-white p-2 rounded w-full hover:bg-green-700">
+            <button
+              onClick={handleSaveCabinet}
+              className="bg-green-600 text-white p-2 rounded w-full hover:bg-green-700"
+            >
               Enregistrer
             </button>
           </div>
@@ -193,7 +219,6 @@ const Dashboard = () => {
   );
 };
 
-// 📌 **Définition du composant StatCard**
 const StatCard = ({ icon, title, value, color, onClick }) => {
   return (
     <div
