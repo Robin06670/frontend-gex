@@ -102,7 +102,7 @@ const Settings = () => {
     }
 
     try {
-      await axios.post(`${process.env.REACT_APP_API_BASE_URL}/api/invites`, {
+      await axios.post(`${process.env.REACT_APP_API_BASE_URL}/api/invite`, {
         email: inviteEmail,
         role: inviteRole
       }, {
