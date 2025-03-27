@@ -7,6 +7,9 @@ const Sidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const user = JSON.parse(localStorage.getItem("user"));
+  const role = user?.role;
+
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("loggedInUser");
@@ -31,10 +34,15 @@ const Sidebar = () => {
         <ul className="space-y-3">
           <SidebarItem to="/dashboard" icon={<FaHome />} label="Accueil" active={location.pathname === "/dashboard"} />
           <SidebarItem to="/clients" icon={<FaBuilding />} label="Clients" active={location.pathname === "/clients"} />
-          <SidebarItem to="/collaborateurs" icon={<FaUsersCog />} label="Collaborateurs" active={location.pathname === "/collaborateurs"} />
-          <SidebarItem to="/fixed-costs" icon={<FaMoneyBillWave />} label="Frais Fixes" active={location.pathname === "/fixed-costs"} /> {/* ✅ Déplacement du bouton Frais Fixes */}
-          <SidebarItem to="/statistics" icon={<FaChartLine />} label="Statistiques" active={location.pathname === "/statistics"} />
-          <SidebarItem to="/settings" icon={<FaCog />} label="Paramètres" active={location.pathname === "/settings"} />
+
+          {role !== "collaborateur" && (
+            <>
+              <SidebarItem to="/collaborateurs" icon={<FaUsersCog />} label="Collaborateurs" active={location.pathname === "/collaborateurs"} />
+              <SidebarItem to="/fixed-costs" icon={<FaMoneyBillWave />} label="Frais Fixes" active={location.pathname === "/fixed-costs"} />
+              <SidebarItem to="/statistics" icon={<FaChartLine />} label="Statistiques" active={location.pathname === "/statistics"} />
+              <SidebarItem to="/settings" icon={<FaCog />} label="Paramètres" active={location.pathname === "/settings"} />
+            </>
+          )}
         </ul>
       </div>
 
