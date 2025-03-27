@@ -26,7 +26,18 @@ const Clients = () => {
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);
-        setClients(clientsResponse.data);
+        const user = JSON.parse(localStorage.getItem("user"));
+        const isCollab = user?.role === "collaborateur";
+
+        const filtered = isCollab
+          ? clientsResponse.data.filter(client => {
+              const collabId = client.collaborator?._id || client.collaborator;
+              return collabId === user.collaboratorId;
+            })
+          : clientsResponse.data;
+
+        setClients(filtered);
+
         setCollaborators(collaboratorsResponse.data);
       } catch (error) {
         console.error("❌ Erreur lors de la récupération des clients et collaborateurs :", error);
