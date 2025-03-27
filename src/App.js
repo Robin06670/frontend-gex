@@ -15,19 +15,23 @@ import FixedCosts from "./pages/FixedCosts";
 
 export default function App() {
   const [role, setRole] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const stored = localStorage.getItem("user");
-    if (stored) {
-      try {
+    try {
+      const stored = localStorage.getItem("user");
+      if (stored) {
         const user = JSON.parse(stored);
         setRole(user.role);
-      } catch (e) {
-        console.error("❌ Erreur de parsing localStorage user:", e);
-        setRole(null);
       }
+    } catch (e) {
+      console.error("❌ Erreur parsing localStorage user:", e);
+    } finally {
+      setLoading(false);
     }
   }, []);
+
+  if (loading) return null; // 🔐 Ne rien afficher tant que le rôle n'est pas chargé
 
   return (
     <Router>
@@ -39,7 +43,7 @@ export default function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/clients" element={<Clients />} />
 
-        {/* 🔹 Pages interdites aux collaborateurs */}
+        {/* 🔹 Pages réservées à l’admin/expert */}
         {role !== "collaborateur" && (
           <>
             <Route path="/settings" element={<Settings />} />
