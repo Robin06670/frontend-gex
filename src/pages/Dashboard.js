@@ -10,7 +10,7 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const [stats, setStats] = useState({ clients: 0, collaborators: 0 });
   const [profileData, setProfileData] = useState(null);
-  const [user, setUser] = useState(null); // ✅ Ajouté
+  const [user, setUser] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [newCabinet, setNewCabinet] = useState({
     cabinetName: "",
@@ -20,6 +20,8 @@ const Dashboard = () => {
     email: "",
     logo: "",
   });
+
+  const isCollab = user?.role === "collaborateur";
 
   const fetchUser = async () => {
     try {
@@ -37,24 +39,39 @@ const Dashboard = () => {
     try {
       const token = localStorage.getItem("token");
 
-      const [clientsRes, collaboratorsRes] = await Promise.all([
-        axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/clients/count`, {
+      if (isCollab) {
+        const res = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/clients`, {
           headers: { Authorization: `Bearer ${token}` },
-        }),
-        axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/collaborators/count-with-managers`, {
-          headers: { Authorization: `Bearer ${token}` },
-        }),
-      ]);
+        });
 
-      setStats({
-        clients: clientsRes.data.count,
-        collaborators: collaboratorsRes.data.count,
-      });
+        const filtered = res.data.filter(client => {
+          const collabId = (client.collaborator?._id || client.collaborator)?.toString();
+          return collabId === user.collaboratorId;
+        });
+        
+        console.log("📦 Liste brute des clients :", res.data);
+        console.log("🔗 ID collaborateur connecté :", user.collaboratorId);
+        console.log("🎯 Clients filtrés :", filtered);
 
-      console.log("📊 Stats mises à jour :", {
-        clients: clientsRes.data.count,
-        collaborators: collaboratorsRes.data.count,
-      });
+        setStats({
+          clients: filtered.length,
+          collaborators: 0, // on masque la carte de toute façon
+        });
+      } else {
+        const [clientsRes, collaboratorsRes] = await Promise.all([
+          axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/clients/count`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/collaborators/count-with-managers`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+        ]);
+
+        setStats({
+          clients: clientsRes.data.count,
+          collaborators: collaboratorsRes.data.count,
+        });
+      }
     } catch (error) {
       console.error("❌ Erreur lors du chargement des statistiques :", error);
     }
@@ -84,18 +101,17 @@ const Dashboard = () => {
 
   useEffect(() => {
     const init = async () => {
-      await fetchUser(); // D'abord récupérer l'utilisateur
+      await fetchUser(); // récupérer l'utilisateur d'abord
     };
     init();
   }, []);
-  
-  // Lorsqu'on a récupéré l'user, on peut lancer les autres fetchs
+
   useEffect(() => {
     if (user) {
       fetchCabinetData();
       fetchDashboardStats();
     }
-  }, [user]);  
+  }, [user]);
 
   const handleChange = (e) => {
     setNewCabinet({ ...newCabinet, [e.target.name]: e.target.value });
@@ -151,13 +167,16 @@ const Dashboard = () => {
               color="bg-gradient-to-r from-blue-700 to-blue-900"
               onClick={() => navigate("/clients")}
             />
-            <StatCard
-              icon={<FaUserTie />}
-              title="Collaborateurs"
-              value={stats.collaborators}
-              color="bg-gradient-to-r from-teal-500 to-green-700"
-              onClick={() => navigate("/collaborateurs")}
-            />
+
+            {!isCollab && (
+              <StatCard
+                icon={<FaUserTie />}
+                title="Collaborateurs"
+                value={stats.collaborators}
+                color="bg-gradient-to-r from-teal-500 to-green-700"
+                onClick={() => navigate("/collaborateurs")}
+              />
+            )}
           </div>
         </main>
       </div>
