@@ -12,6 +12,7 @@ import CollaboratorDetails from "./pages/CollaboratorDetails";
 import CollaboratorClients from "./pages/CollaboratorClients";
 import Statistics from "./pages/Statistics";
 import FixedCosts from "./pages/FixedCosts";
+import Timesheet from "./pages/Timesheet"; // ✅ Ajout de l'import
 
 export default function App() {
   const [role, setRole] = useState(null);
@@ -31,7 +32,7 @@ export default function App() {
     }
   }, []);
 
-  if (loading) return null; // 🔐 Ne rien afficher tant que le rôle n'est pas chargé
+  if (loading) return null;
 
   return (
     <Router>
@@ -42,6 +43,7 @@ export default function App() {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/clients" element={<Clients />} />
+        <Route path="/timesheet" element={<Timesheet />} /> {/* ✅ Nouvelle route visible pour tous */}
 
         {/* 🔹 Pages réservées à l’admin/expert */}
         {role !== "collaborateur" && (
