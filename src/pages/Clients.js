@@ -13,7 +13,9 @@ const Clients = () => {
   const [sortBy, setSortBy] = useState("company");
   const [sortOrder, setSortOrder] = useState("asc");
 
-  // 📌 Récupérer les clients et collaborateurs depuis l'API
+  const user = JSON.parse(localStorage.getItem("user"));
+  const isCollab = user?.role === "collaborateur";
+
   useEffect(() => {
     const fetchClientsAndCollaborators = async () => {
       try {
@@ -26,8 +28,6 @@ const Clients = () => {
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);
-        const user = JSON.parse(localStorage.getItem("user"));
-        const isCollab = user?.role === "collaborateur";
 
         const filtered = isCollab
           ? clientsResponse.data.filter(client => {
@@ -37,7 +37,6 @@ const Clients = () => {
           : clientsResponse.data;
 
         setClients(filtered);
-
         setCollaborators(collaboratorsResponse.data);
       } catch (error) {
         console.error("❌ Erreur lors de la récupération des clients et collaborateurs :", error);
@@ -143,70 +142,96 @@ const handleDeleteClient = async (id) => {
   }
 };
 
-  return (
-    <div className="flex h-screen bg-gray-100 overflow-hidden">
-      <Sidebar />
-      <div className="flex-1 flex flex-col h-screen overflow-y-auto p-6">
-        
-        {/* En-tête avec bouton Ajouter et Titre */}
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-gray-800">Liste des Clients</h1>
+return (
+  <div className="flex h-screen bg-gray-100 overflow-hidden">
+    <Sidebar />
+    <div className="flex-1 flex flex-col h-screen overflow-y-auto p-6">
+      
+      {/* En-tête avec bouton Ajouter et Titre */}
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold text-gray-800">Liste des Clients</h1>
+        {!isCollab && (
           <button 
             onClick={() => navigate("/clients/new")} 
             className="bg-green-600 text-white px-4 py-2 rounded-lg shadow-md hover:bg-green-700 flex items-center transition-transform transform hover:scale-105"
           >
             <FaPlus className="mr-2" /> Ajouter Client
           </button>
-        </div>
+        )}
+      </div>
 
-        {/* Barre de recherche */}
-        <div className="relative w-full max-w-lg mx-auto mb-6">
-          <input 
-            type="text" 
-            placeholder="Rechercher par entreprise ou activité..." 
-            className="w-full p-2 border rounded pl-10"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-          <FaSearch className="absolute left-3 top-3 text-gray-500" />
-        </div>
+      {/* Barre de recherche */}
+      <div className="relative w-full max-w-lg mx-auto mb-6">
+        <input 
+          type="text" 
+          placeholder="Rechercher par entreprise ou activité..." 
+          className="w-full p-2 border rounded pl-10"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+        <FaSearch className="absolute left-3 top-3 text-gray-500" />
+      </div>
 
-        {/* Tableau des Clients */}
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <table className="w-full border-collapse">
-            <thead>
-              <tr className="bg-gray-200">
-                <th className="p-3 text-left cursor-pointer" onClick={() => toggleSortOrder("company")}>Entreprise <FaSort className="inline ml-1" /></th>
-                <th className="p-3 text-left cursor-pointer" onClick={() => toggleSortOrder("activity")}>Activité <FaSort className="inline ml-1" /></th>
-                <th className="p-3 text-left cursor-pointer" onClick={() => toggleSortOrder("fees")}>Honoraires (€) <FaSort className="inline ml-1" /></th>
-                <th className="p-3 text-left cursor-pointer" onClick={() => toggleSortOrder("margin")}>Marge (€) <FaSort className="inline ml-1" /></th>
-                <th className="p-3 text-center">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredClients.map(client => {
-                const margin = calculateMargin(client.fees, client.collaborator, client.theoreticalTime);
-                return (
-                  <tr key={client._id} className="border-b hover:bg-gray-100">
-                    <td className="p-3">{client.company || "N/A"}</td>
-                    <td className="p-3">{client.activity || "Non spécifiée"}</td>
-                    <td className="p-3">{client.fees} €</td>
-                    <td className={`p-3 ${margin >= 0 ? "text-green-600" : "text-red-600"}`}>
-                      {margin} €
-                    </td>
-                    <td className="p-3 flex justify-center space-x-4">
-                      <button onClick={() => navigate(`/clients/${client._id}`)} className="text-blue-600"><FaEye /></button>
-                      <button onClick={() => handleDeleteClient(client._id)} className="text-red-500"><FaTrash /></button>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+      {/* Tableau des Clients */}
+      <div className="bg-white p-6 rounded-lg shadow-md">
+        <table className="w-full border-collapse">
+          <thead>
+            <tr className="bg-gray-200">
+              <th className="p-3 text-left cursor-pointer" onClick={() => toggleSortOrder("company")}>Entreprise <FaSort className="inline ml-1" /></th>
+              <th className="p-3 text-left cursor-pointer" onClick={() => toggleSortOrder("activity")}>Activité <FaSort className="inline ml-1" /></th>
+
+              {isCollab && (
+                <>
+                  <th className="p-3 text-left">Téléphone</th>
+                  <th className="p-3 text-left">Email</th>
+                </>
+              )}
+
+              {!isCollab && (
+                <>
+                  <th className="p-3 text-left cursor-pointer" onClick={() => toggleSortOrder("fees")}>Honoraires (€) <FaSort className="inline ml-1" /></th>
+                  <th className="p-3 text-left cursor-pointer" onClick={() => toggleSortOrder("margin")}>Marge (€) <FaSort className="inline ml-1" /></th>
+                  <th className="p-3 text-center">Actions</th>
+                </>
+              )}
+            </tr>
+          </thead>
+          <tbody>
+            {filteredClients.map(client => {
+              const margin = calculateMargin(client.fees, client.collaborator, client.theoreticalTime);
+              return (
+                <tr key={client._id} className="border-b hover:bg-gray-100">
+                  <td className="p-3">{client.company || "N/A"}</td>
+                  <td className="p-3">{client.activity || "Non spécifiée"}</td>
+
+                  {isCollab && (
+                    <>
+                      <td className="p-3">{client.phone || "N/A"}</td>
+                      <td className="p-3">{client.email || "N/A"}</td>
+                    </>
+                  )}
+
+                  {!isCollab && (
+                    <>
+                      <td className="p-3">{client.fees} €</td>
+                      <td className={`p-3 ${margin >= 0 ? "text-green-600" : "text-red-600"}`}>
+                        {margin} €
+                      </td>
+                      <td className="p-3 flex justify-center space-x-4">
+                        <button onClick={() => navigate(`/clients/${client._id}`)} className="text-blue-600"><FaEye /></button>
+                        <button onClick={() => handleDeleteClient(client._id)} className="text-red-500"><FaTrash /></button>
+                      </td>
+                    </>
+                  )}
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
       </div>
     </div>
-  );
+  </div>
+);
 };
 
 export default Clients;
