@@ -12,7 +12,10 @@ import CollaboratorDetails from "./pages/CollaboratorDetails";
 import CollaboratorClients from "./pages/CollaboratorClients";
 import Statistics from "./pages/Statistics";
 import FixedCosts from "./pages/FixedCosts";
-import Timesheet from "./pages/Timesheet"; // ✅ Ajout de l'import
+import Timesheet from "./pages/Timesheet"; // 👈 Tu ne l’as pas importée
+import CollaboratorBoard from "./pages/CollaboratorBoard"; // 👈 Tu ne l’as pas importée
+import TimesheetReadOnly from "./pages/TimesheetReadOnly"; // 👈 Tu ne l’as pas importée
+import CollaboratorStats from "./pages/CollaboratorStats";
 
 export default function App() {
   const [role, setRole] = useState(null);
@@ -32,7 +35,7 @@ export default function App() {
     }
   }, []);
 
-  if (loading) return null;
+  if (loading) return null; // 🔐 Ne rien afficher tant que le rôle n'est pas chargé
 
   return (
     <Router>
@@ -43,7 +46,7 @@ export default function App() {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/clients" element={<Clients />} />
-        <Route path="/timesheet" element={<Timesheet />} /> {/* ✅ Nouvelle route visible pour tous */}
+        <Route path="/timesheet" element={<Timesheet />} />
 
         {/* 🔹 Pages réservées à l’admin/expert */}
         {role !== "collaborateur" && (
@@ -57,6 +60,11 @@ export default function App() {
             <Route path="/collaborateurs/new" element={<CollaboratorDetails />} />
             <Route path="/collaborateurs/:id" element={<CollaboratorDetails />} />
             <Route path="/collaborateurs/:id/clients" element={<CollaboratorClients />} />
+            <Route path="/collaborator-board" element={<CollaboratorBoard />} />
+            <Route path="/timesheet/:id" element={<TimesheetReadOnly />} />
+            <Route path="/stats/:id" element={<CollaboratorStats />} />
+            
+
           </>
         )}
       </Routes>

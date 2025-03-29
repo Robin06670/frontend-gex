@@ -4,17 +4,27 @@ import axios from "axios";
 
 const Timesheet = () => {
   const [clients, setClients] = useState([]);
-  const [entries, setEntries] = useState([]);
+  const [entriesByDate, setEntriesByDate] = useState({});
+  const [selectedDate, setSelectedDate] = useState(() => {
+    const today = new Date();
+    return today.toISOString().split("T")[0];
+  });
+
   const [form, setForm] = useState({
-    date: "",
     client: "",
     task: "",
-    duration: ""
+    comment: "",
+    startTime: "",
+    endTime: "",
+    facturable: false,
+    montant: ""
   });
+
+  const [editIndex, setEditIndex] = useState(null);
+  const [lockedDates, setLockedDates] = useState({});
 
   const user = JSON.parse(localStorage.getItem("user"));
 
-  // Charger les clients à l'initialisation
   useEffect(() => {
     const fetchClients = async () => {
       try {
@@ -22,6 +32,7 @@ const Timesheet = () => {
         const res = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/clients`, {
           headers: { Authorization: `Bearer ${token}` },
         });
+
         const filtered = user?.role === "collaborateur"
           ? res.data.filter(client => {
               const collabId = client.collaborator?._id || client.collaborator;
@@ -39,75 +50,285 @@ const Timesheet = () => {
   }, [user]);
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, type, checked, value } = e.target;
+    setForm({
+      ...form,
+      [name]: type === "checkbox" ? checked : value
+    });
   };
 
-  const handleAddEntry = () => {
-    if (!form.date || !form.client || !form.task || !form.duration) return;
-    setEntries([...entries, form]);
-    setForm({ date: "", client: "", task: "", duration: "" });
+  const parseTime = (timeStr) => {
+    const [hours, minutes] = timeStr.split(":").map(Number);
+    const date = new Date();
+    date.setHours(hours, minutes, 0, 0);
+    return date;
   };
 
-  const totalMinutes = entries.reduce((acc, curr) => acc + parseInt(curr.duration), 0);
+  const handleAddOrUpdate = () => {
+    const { client, task, startTime, endTime, comment, facturable, montant } = form;
+    if (!client || !task || !startTime || !endTime) return;
+
+    const start = parseTime(startTime);
+    const end = parseTime(endTime);
+    if (end <= start) return;
+
+    const duration = (end - start) / 60000;
+    const newEntry = {
+      client,
+      task,
+      startTime,
+      endTime,
+      comment,
+      duration,
+      facturable,
+      montant: facturable ? montant : ""
+    };
+
+    setEntriesByDate(prev => {
+      const current = [...(prev[selectedDate] || [])];
+      if (editIndex !== null) {
+        current[editIndex] = newEntry;
+      } else {
+        current.push(newEntry);
+      }
+      return { ...prev, [selectedDate]: current };
+    });
+
+    setForm({
+      client: "",
+      task: "",
+      comment: "",
+      startTime: "",
+      endTime: "",
+      facturable: false,
+      montant: ""
+    });
+
+    setEditIndex(null);
+  };
+
+  const handleEdit = (index) => {
+    const entry = entriesByDate[selectedDate][index];
+    setForm({
+      client: entry.client,
+      task: entry.task,
+      comment: entry.comment || "",
+      startTime: entry.startTime,
+      endTime: entry.endTime,
+      facturable: entry.facturable || false,
+      montant: entry.montant || ""
+    });
+    setEditIndex(index);
+  };
+
+  const handleDelete = (index) => {
+    setEntriesByDate(prev => {
+      const updated = [...(prev[selectedDate] || [])];
+      updated.splice(index, 1);
+      return { ...prev, [selectedDate]: updated };
+    });
+  };
+
+  const entries = entriesByDate[selectedDate] || [];
+  const totalMinutes = entries.reduce((acc, curr) => acc + curr.duration, 0);
   const totalHours = `${Math.floor(totalMinutes / 60)}h ${totalMinutes % 60}m`;
+
+  const taskOptions = [
+    "Saisie", "TVA", "Acomptes IS", "Autres déclarations fiscales",
+    "Révision", "Bilan", "Situation", "Prévisionnel", "Paies", "DSN", "Mails",
+    "Autres déclarations sociales", "Téléphone", "Juridique", "CAC",
+    "Réunion", "Formation", "Entraide", "Rendez-vous", "Autre"
+  ];
+
+  const isLocked = lockedDates[selectedDate];
+
 
   return (
     <div className="flex h-screen bg-gray-100 overflow-hidden">
       <Sidebar />
       <div className="flex-1 p-6 overflow-y-auto">
-        <h1 className="text-3xl font-bold text-gray-800 mb-6">Feuille de Temps</h1>
 
-        {/* Formulaire de saisie */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-          <input type="date" name="date" value={form.date} onChange={handleChange}
-            className="p-2 border rounded w-full" />
-
-          <select name="client" value={form.client} onChange={handleChange}
-            className="p-2 border rounded w-full">
-            <option value="">Sélectionner un client</option>
-            {clients.map(client => (
-              <option key={client._id} value={client._id}>
-                {client.company}
-              </option>
-            ))}
-          </select>
-
-          <input type="text" name="task" placeholder="Tâche réalisée"
-            value={form.task} onChange={handleChange}
-            className="p-2 border rounded w-full" />
-
-          <input type="number" name="duration" placeholder="Durée (min)"
-            value={form.duration} onChange={handleChange}
-            className="p-2 border rounded w-full" />
+        {/* Top bar */}
+        <div className="flex justify-between items-center mb-6">
+          <div className="text-center w-full">
+            <h1 className="text-3xl font-bold text-gray-800 mb-2">Feuille de Temps</h1>
+            <input
+              type="date"
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+              className="mt-2 px-4 py-2 border rounded shadow"
+            />
+          </div>
+          <div className="ml-4">
+            <button
+              onClick={() =>
+                setLockedDates(prev => ({ ...prev, [selectedDate]: !prev[selectedDate] }))
+              }
+              className={`px-4 py-2 rounded font-semibold ${
+                isLocked ? 'bg-gray-500' : 'bg-green-600'
+              } text-white`}
+            >
+              {isLocked ? "Déverrouiller" : "Valider la feuille"}
+            </button>
+          </div>
         </div>
 
-        <button onClick={handleAddEntry}
-          className="mb-6 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
-          + Ajouter
-        </button>
+        {/* Form */}
+        {!isLocked && (
+          <>
+            <div className="bg-white rounded-lg shadow-md p-6 mb-2 grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
+              <select
+                name="client"
+                value={form.client}
+                onChange={handleChange}
+                className="p-2 border rounded"
+              >
+                <option value="" disabled hidden>Client</option>
+                <option value="none">Non affectable</option>
+                {clients.map(client => (
+                  <option key={client._id} value={client._id}>
+                    {client.company}
+                  </option>
+                ))}
+              </select>
 
-        {/* Tableau des entrées */}
-        <div className="bg-white shadow rounded p-4">
-          <table className="w-full table-auto">
-            <thead>
-              <tr className="bg-gray-200">
-                <th className="p-2 text-left">Date</th>
-                <th className="p-2 text-left">Client</th>
-                <th className="p-2 text-left">Tâche</th>
-                <th className="p-2 text-left">Durée</th>
-              </tr>
-            </thead>
-            <tbody>
-              {entries.map((entry, idx) => (
-                <tr key={idx} className="border-t">
-                  <td className="p-2">{entry.date}</td>
-                  <td className="p-2">{clients.find(c => c._id === entry.client)?.company || "?"}</td>
-                  <td className="p-2">{entry.task}</td>
-                  <td className="p-2">{entry.duration} min</td>
+              <select
+                name="task"
+                value={form.task}
+                onChange={handleChange}
+                className="p-2 border rounded"
+              >
+                <option value="" disabled hidden>Tâche</option>
+                {taskOptions.map((option, idx) => (
+                  <option key={idx} value={option}>{option}</option>
+                ))}
+              </select>
+
+              <input
+                type="time"
+                name="startTime"
+                value={form.startTime}
+                onChange={handleChange}
+                className="p-2 border rounded"
+              />
+
+              <input
+                type="time"
+                name="endTime"
+                value={form.endTime}
+                onChange={handleChange}
+                className="p-2 border rounded"
+              />
+
+              <button
+                onClick={handleAddOrUpdate}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+              >
+                {editIndex !== null ? "Modifier" : "+ Ajouter"}
+              </button>
+            </div>
+
+            <input
+              type="text"
+              name="comment"
+              placeholder="Commentaire (facultatif)"
+              value={form.comment}
+              onChange={handleChange}
+              className="p-2 border rounded w-full mt-2 mb-4"
+            />
+
+            <div className="flex items-center gap-4 mb-6">
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  name="facturable"
+                  checked={form.facturable}
+                  onChange={handleChange}
+                  className="mr-2"
+                />
+                Facturable
+              </label>
+
+              {form.facturable && (
+                <input
+                  type="number"
+                  name="montant"
+                  placeholder="Montant HT (€)"
+                  value={form.montant}
+                  onChange={handleChange}
+                  className="p-2 border rounded"
+                />
+              )}
+            </div>
+          </>
+        )}
+
+        {/* Tableau */}
+        <div className="bg-white shadow rounded-lg p-4">
+          {entries.length === 0 ? (
+            <p className="text-center text-gray-500">Aucune entrée pour cette date.</p>
+          ) : (
+            <table className="w-full table-auto">
+              <thead>
+                <tr className="bg-gray-200 text-left">
+                  <th className="p-2">Client</th>
+                  <th className="p-2">Tâche</th>
+                  <th className="p-2">Début</th>
+                  <th className="p-2">Fin</th>
+                  <th className="p-2">Durée</th>
+                  <th className="p-2">💶</th>
+                  {!isLocked && <th className="p-2 text-right">Actions</th>}
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {entries.map((entry, idx) => (
+                  <React.Fragment key={idx}>
+                    <tr className="border-t hover:bg-gray-50">
+                      <td className="p-2">
+                        {entry.client === "none"
+                          ? "Non affectable"
+                          : clients.find(c => c._id === entry.client)?.company || "?"}
+                      </td>
+                      <td className="p-2">{entry.task}</td>
+                      <td className="p-2">{entry.startTime}</td>
+                      <td className="p-2">{entry.endTime}</td>
+                      <td className="p-2">
+                        {Math.floor(entry.duration / 60)}h {entry.duration % 60}m
+                      </td>
+                      <td className="p-2">
+                        {entry.facturable && entry.montant ? `${entry.montant} €` : "-"}
+                      </td>
+                      {!isLocked && (
+                        <td className="p-2 text-right space-x-2">
+                          <button
+                            onClick={() => handleEdit(idx)}
+                            className="text-blue-600 hover:text-blue-800"
+                            title="Modifier"
+                          >
+                            ✏️
+                          </button>
+                          <button
+                            onClick={() => handleDelete(idx)}
+                            className="text-red-600 hover:text-red-800"
+                            title="Supprimer"
+                          >
+                            🗑️
+                          </button>
+                        </td>
+                      )}
+                    </tr>
+                    {entry.comment && (
+                      <tr className="text-sm text-gray-500">
+                        <td colSpan={isLocked ? 6 : 7} className="p-2 italic">
+                          💬 {entry.comment}
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
+                ))}
+              </tbody>
+            </table>
+          )}
 
           <div className="text-right mt-4 font-semibold text-lg">
             Total : {totalHours}

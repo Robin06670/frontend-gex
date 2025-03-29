@@ -7,9 +7,9 @@ import {
   FaCog,
   FaSignOutAlt,
   FaMoneyBillWave,
-  FaClock, // 👈 Ajout
+  FaClock,
 } from "react-icons/fa";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import logo from "../assets/logo.png";
 
 const Sidebar = () => {
@@ -27,8 +27,6 @@ const Sidebar = () => {
 
   return (
     <div className="w-52 h-screen bg-blue-900 bg-opacity-90 backdrop-blur-md text-white flex flex-col p-5 justify-between rounded-2xl shadow-2xl transition-all duration-300">
-      
-      {/* Logo & Nom */}
       <div>
         <div className="flex items-center mb-6">
           <img
@@ -39,7 +37,6 @@ const Sidebar = () => {
           <h2 className="text-xl font-bold tracking-wide">GEX</h2>
         </div>
 
-        {/* Menu */}
         <ul className="space-y-3">
           <SidebarItem
             to="/dashboard"
@@ -63,13 +60,17 @@ const Sidebar = () => {
             />
           )}
 
-          {/* 👇 Feuille de temps visible pour tous */}
-          <SidebarItem
-            to="/timesheet"
-            icon={<FaClock />}
-            label="Feuille de temps"
-            active={location.pathname === "/timesheet"}
-          />
+          {/* Redirection dynamique selon le rôle */}
+          <li
+            className={`flex items-center space-x-3 cursor-pointer p-3 rounded-xl transition-all duration-200 transform hover:scale-105
+            ${location.pathname.startsWith("/timesheet") || location.pathname === "/collaborator-board" ? "bg-blue-700 shadow-lg" : "hover:bg-blue-700"}`}
+            onClick={() =>
+              navigate(role === "collaborateur" ? "/timesheet" : "/collaborator-board")
+            }
+          >
+            <span className="text-base"><FaClock /></span>
+            <span className="text-sm font-medium tracking-wide">Feuille de temps</span>
+          </li>
 
           {role !== "collaborateur" && (
             <>
@@ -96,7 +97,6 @@ const Sidebar = () => {
         </ul>
       </div>
 
-      {/* Bouton Déconnexion */}
       <button
         onClick={handleLogout}
         className="flex items-center justify-center space-x-2 bg-gray-200 hover:bg-gray-300 text-gray-900 p-3 rounded-xl w-full text-xs font-semibold shadow-lg transition-all duration-200 transform hover:scale-105"
@@ -108,17 +108,20 @@ const Sidebar = () => {
   );
 };
 
-// Composant pour chaque item du menu
+// ✅ SidebarItem fonctionnel avec navigation
 const SidebarItem = ({ to, icon, label, active }) => {
+  const navigate = useNavigate();
+
   return (
     <li
+      onClick={() => navigate(to)}
       className={`flex items-center space-x-3 cursor-pointer p-3 rounded-xl transition-all duration-200 transform hover:scale-105
       ${active ? "bg-blue-700 shadow-lg" : "hover:bg-blue-700"}`}
     >
-      <Link to={to} className="flex items-center space-x-3 w-full h-full">
-        <span className="text-base">{icon}</span>
+      <span className="flex items-center space-x-3 w-full h-full">
+        {icon}
         <span className="text-sm font-medium tracking-wide">{label}</span>
-      </Link>
+      </span>
     </li>
   );
 };
