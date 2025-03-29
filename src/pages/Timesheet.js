@@ -24,8 +24,39 @@ const Timesheet = () => {
   const [lockedDates, setLockedDates] = useState({});
 
   const user = JSON.parse(localStorage.getItem("user"));
+  
+  useEffect(() => {
+    const fetchEntries = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await axios.get(
+          `${process.env.REACT_APP_API_BASE_URL}/api/timesheets/${selectedDate}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+  
+        setEntriesByDate(prev => ({
+          ...prev,
+          [selectedDate]: res.data.entries || [],
+        }));
+  
+        setLockedDates(prev => ({
+          ...prev,
+          [selectedDate]: res.data.isLocked || false,
+        }));
+      } catch (err) {
+        console.error("Erreur chargement feuille de temps :", err);
+      }
+    };
+  
+    fetchEntries();
+  }, [selectedDate]);  
 
   useEffect(() => {
+    
     const fetchClients = async () => {
       try {
         const token = localStorage.getItem("token");
@@ -86,28 +117,52 @@ const Timesheet = () => {
 
     try {
       const token = localStorage.getItem("token");
-    
       const payload = {
-        ...newEntry,
-        collaborator: user.collaboratorId,
-        date: selectedDate,
+        client,
+        task,
+        startTime,
+        endTime,
+        comment,
+        duration,
+        facturable,
+        montant: facturable ? montant : ""
       };
     
-      const res = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/api/timesheets`, payload, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      if (editIndex !== null) {
+        // 🔁 MODIFICATION d'une ligne existante
+        await axios.put(
+          `${process.env.REACT_APP_API_BASE_URL}/api/timesheets/${selectedDate}/entry/${editIndex}`,
+          payload,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+      } else {
+        // ➕ AJOUT d'une nouvelle ligne
+        await axios.post(`${process.env.REACT_APP_API_BASE_URL}/api/timesheets`, {
+          ...payload,
+          date: selectedDate,
+        }, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+      }
     
-      // Enregistrement local uniquement si backend ok
-      setEntriesByDate(prev => {
-        const current = [...(prev[selectedDate] || [])];
-        current.push(res.data);
-        return { ...prev, [selectedDate]: current };
-      });
+      // 🔁 Recharger les lignes après ajout/modification
+      const res = await axios.get(
+        `${process.env.REACT_APP_API_BASE_URL}/api/timesheets/${selectedDate}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+    
+      setEntriesByDate(prev => ({
+        ...prev,
+        [selectedDate]: res.data.entries || [],
+      }));
     
     } catch (err) {
-      console.error("Erreur ajout ligne :", err);
+      console.error("Erreur sauvegarde ligne :", err);
       alert("Erreur lors de l'enregistrement de la ligne.");
     }
+    
 
     setForm({
       client: "",
@@ -121,6 +176,34 @@ const Timesheet = () => {
 
     setEditIndex(null);
   };
+  
+  const handleToggleLock = async () => {
+    const newLockState = !lockedDates[selectedDate];
+  
+    try {
+      const token = localStorage.getItem("token");
+      await axios.patch(
+        `${process.env.REACT_APP_API_BASE_URL}/api/timesheets/${selectedDate}/lock`,
+        { lock: newLockState },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+  
+      setLockedDates(prev => ({
+        ...prev,
+        [selectedDate]: newLockState,
+      }));
+  
+      alert(`Feuille ${newLockState ? "validée" : "déverrouillée"} !`);
+    } catch (err) {
+      console.error("Erreur validation feuille :", err);
+      alert("Erreur lors de la validation.");
+    }
+  };
+  
 
   const handleEdit = (index) => {
     const entry = entriesByDate[selectedDate][index];
@@ -136,13 +219,34 @@ const Timesheet = () => {
     setEditIndex(index);
   };
 
-  const handleDelete = (index) => {
-    setEntriesByDate(prev => {
-      const updated = [...(prev[selectedDate] || [])];
-      updated.splice(index, 1);
-      return { ...prev, [selectedDate]: updated };
-    });
+  const handleDelete = async (index) => {
+    try {
+      const token = localStorage.getItem("token");
+  
+      await axios.delete(
+        `${process.env.REACT_APP_API_BASE_URL}/api/timesheets/${selectedDate}/entry/${index}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+  
+      // 🔁 Recharger la liste après suppression
+      const res = await axios.get(
+        `${process.env.REACT_APP_API_BASE_URL}/api/timesheets/${selectedDate}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+  
+      setEntriesByDate(prev => ({
+        ...prev,
+        [selectedDate]: res.data.entries || [],
+      }));
+  
+    } catch (err) {
+      console.error("Erreur suppression ligne :", err);
+      alert("Erreur lors de la suppression.");
+    }
   };
+  
 
   const entries = entriesByDate[selectedDate] || [];
   const totalMinutes = entries.reduce((acc, curr) => acc + curr.duration, 0);
@@ -176,9 +280,8 @@ const Timesheet = () => {
           </div>
           <div className="ml-4">
             <button
-              onClick={() =>
-                setLockedDates(prev => ({ ...prev, [selectedDate]: !prev[selectedDate] }))
-              }
+              onClick={handleToggleLock}
+              
               className={`px-4 py-2 rounded font-semibold ${
                 isLocked ? 'bg-gray-500' : 'bg-green-600'
               } text-white`}
