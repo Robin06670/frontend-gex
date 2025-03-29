@@ -64,7 +64,7 @@ const Timesheet = () => {
     return date;
   };
 
-  const handleAddOrUpdate = () => {
+  const handleAddOrUpdate = async () => {
     const { client, task, startTime, endTime, comment, facturable, montant } = form;
     if (!client || !task || !startTime || !endTime) return;
 
@@ -84,15 +84,30 @@ const Timesheet = () => {
       montant: facturable ? montant : ""
     };
 
-    setEntriesByDate(prev => {
-      const current = [...(prev[selectedDate] || [])];
-      if (editIndex !== null) {
-        current[editIndex] = newEntry;
-      } else {
-        current.push(newEntry);
-      }
-      return { ...prev, [selectedDate]: current };
-    });
+    try {
+      const token = localStorage.getItem("token");
+    
+      const payload = {
+        ...newEntry,
+        collaborator: user.collaboratorId,
+        date: selectedDate,
+      };
+    
+      const res = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/api/timesheets`, payload, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+    
+      // Enregistrement local uniquement si backend ok
+      setEntriesByDate(prev => {
+        const current = [...(prev[selectedDate] || [])];
+        current.push(res.data);
+        return { ...prev, [selectedDate]: current };
+      });
+    
+    } catch (err) {
+      console.error("Erreur ajout ligne :", err);
+      alert("Erreur lors de l'enregistrement de la ligne.");
+    }
 
     setForm({
       client: "",
