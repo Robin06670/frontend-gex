@@ -29,19 +29,27 @@ const Timesheet = () => {
     const fetchEntries = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await axios.get(
-          `${process.env.REACT_APP_API_BASE_URL}/api/timesheets/${selectedDate}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const user = JSON.parse(localStorage.getItem("user"));
+        const isCollaborateur = user?.role === "collaborateur";
+        const collaboratorId = user?.collaboratorId;
+  
+        let url = `${process.env.REACT_APP_API_BASE_URL}/api/timesheets/${selectedDate}`;
+        if (!isCollaborateur && collaboratorId) {
+          url += `?collaboratorId=${collaboratorId}`;
+        }
+  
+        const res = await axios.get(url, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
   
         setEntriesByDate(prev => ({
           ...prev,
           [selectedDate]: res.data.entries || [],
         }));
+  
+        setEditIndex(null);
   
         setLockedDates(prev => ({
           ...prev,

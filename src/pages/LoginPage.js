@@ -25,7 +25,10 @@ export default function LoginPage() {
 
       // ✅ Stocker le token en local
       localStorage.setItem("token", response.data.token);
-      localStorage.setItem("user", JSON.stringify(response.data.user));
+      localStorage.setItem("user", JSON.stringify({
+        ...response.data.user,
+        collaboratorId: response.data.user.collaboratorId
+      }));      
 
       // ✅ Redirection après connexion réussie
       navigate("/dashboard");
