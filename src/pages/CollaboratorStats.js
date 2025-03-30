@@ -33,7 +33,8 @@ const CollaboratorStats = () => {
         });
         setCollaborator(userRes.data);
 
-        const clientsRes = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/collaborators/${id}/clients`, {
+        const clientsRes = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/timesheets/collaborators/${id}/clients`
+, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -65,19 +66,16 @@ const CollaboratorStats = () => {
         console.error("Erreur récupération stats :", err);
 
         // fallback de test
-        setStats([
-          { task: "Saisie", duration: 300, facturable: true },
-          { task: "TVA", duration: 180, facturable: true },
-          { task: "Téléphone", duration: 60, facturable: false },
-          { task: "Bilan", duration: 240, facturable: true },
-        ]);
+        setStats([]);
       }
     };
 
     fetchStats();
   }, [id, fromDate, toDate, selectedClientId]);
 
-  const totalMinutes = stats.reduce((acc, item) => acc + item.duration, 0);
+  const totalMinutes = Array.isArray(stats)
+  ? stats.reduce((acc, item) => acc + item.duration, 0)
+  : 0;
   const totalHours = `${Math.floor(totalMinutes / 60)}h ${totalMinutes % 60}m`;
 
   const pieData = stats.reduce((acc, item) => {
