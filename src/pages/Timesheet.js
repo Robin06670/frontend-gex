@@ -413,7 +413,7 @@ const Timesheet = () => {
                       <td className="p-2">
                         {entry.client === "none"
                           ? "Non affectable"
-                          : entry.client?.company || "?"}
+                          : entry.client?.company || "Non affectable"}
                       </td>
                       <td className="p-2">{entry.task}</td>
                       <td className="p-2">{entry.startTime}</td>
