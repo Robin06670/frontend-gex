@@ -218,7 +218,7 @@ const Timesheet = () => {
     const entry = entries[index];
   
     setForm({
-      client: entry.client?._id || entry.client || "none",
+      client: entry.client && typeof entry.client === "object" ? entry.client._id : entry.client || "none",
       task: entry.task,
       startTime: entry.startTime,
       endTime: entry.endTime,
