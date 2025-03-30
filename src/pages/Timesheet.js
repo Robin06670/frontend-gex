@@ -213,19 +213,19 @@ const Timesheet = () => {
   };
   
 
-  const handleEdit = (index) => {
-    const entry = entriesByDate[selectedDate][index];
-    setForm({
-      client: entry.client,
-      task: entry.task,
-      comment: entry.comment || "",
-      startTime: entry.startTime,
-      endTime: entry.endTime,
-      facturable: entry.facturable || false,
-      montant: entry.montant || ""
-    });
-    setEditIndex(index);
+  const handleEditEntry = (index) => {
+    const entry = entries[index];
+  
+    setSelectedClient(entry.client ? entry.client._id || entry.client : "none"); // ✅ fix ici
+    setSelectedTask(entry.task);
+    setStartTime(entry.startTime);
+    setEndTime(entry.endTime);
+    setComment(entry.comment || "");
+    setIsFacturable(entry.facturable);
+    setMontant(entry.montant || "");
+    setEditingIndex(index);
   };
+  
 
   const handleDelete = async (index) => {
     try {
