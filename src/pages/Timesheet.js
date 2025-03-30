@@ -26,6 +26,7 @@ const Timesheet = () => {
   const user = JSON.parse(localStorage.getItem("user"));
   
   useEffect(() => {
+    
     const fetchEntries = async () => {
       try {
         const token = localStorage.getItem("token");
@@ -216,15 +217,18 @@ const Timesheet = () => {
   const handleEditEntry = (index) => {
     const entry = entries[index];
   
-    setSelectedClient(entry.client ? entry.client._id || entry.client : "none"); // ✅ fix ici
-    setSelectedTask(entry.task);
-    setStartTime(entry.startTime);
-    setEndTime(entry.endTime);
-    setComment(entry.comment || "");
-    setIsFacturable(entry.facturable);
-    setMontant(entry.montant || "");
-    setEditingIndex(index);
-  };
+    setForm({
+      client: entry.client?._id || entry.client || "none",
+      task: entry.task,
+      startTime: entry.startTime,
+      endTime: entry.endTime,
+      comment: entry.comment || "",
+      facturable: entry.facturable,
+      montant: entry.montant || "",
+    });
+  
+    setEditIndex(index);
+  };  
   
 
   const handleDelete = async (index) => {
@@ -427,7 +431,7 @@ const Timesheet = () => {
                       {!isLocked && (
                         <td className="p-2 text-right space-x-2">
                           <button
-                            onClick={() => handleEdit(idx)}
+                            onClick={() => handleEditEntry(idx)}
                             className="text-blue-600 hover:text-blue-800"
                             title="Modifier"
                           >
