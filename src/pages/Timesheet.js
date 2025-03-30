@@ -113,7 +113,7 @@ const Timesheet = () => {
 
     const duration = (end - start) / 60000;
     const newEntry = {
-      client,
+      client: client === "none" ? null : client,
       task,
       startTime,
       endTime,
