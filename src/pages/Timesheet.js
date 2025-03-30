@@ -413,7 +413,7 @@ const Timesheet = () => {
                       <td className="p-2">
                         {entry.client === "none"
                           ? "Non affectable"
-                          : clients.find(c => c._id === entry.client)?.company || "?"}
+                          : entry.client?.company || "?"}
                       </td>
                       <td className="p-2">{entry.task}</td>
                       <td className="p-2">{entry.startTime}</td>
