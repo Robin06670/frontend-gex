@@ -55,7 +55,7 @@ const CollaboratorStats = () => {
         const token = localStorage.getItem("token");
         let url = `${process.env.REACT_APP_API_BASE_URL}/api/timesheets/stats/${id}?from=${fromDate}&to=${toDate}`;
         if (selectedClientId) {
-          url += `&clientId=${selectedClientId}`;
+          url += `&client=${selectedClientId}`; // ✅ correct
         }
 
         const res = await axios.get(url, {
