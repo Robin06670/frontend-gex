@@ -19,6 +19,7 @@ const CollaboratorStats = () => {
   const [selectedClientId, setSelectedClientId] = useState(null);
   const [clientModalOpen, setClientModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [totalDuration, setTotalDuration] = useState(0);
 
   const [fromDate, setFromDate] = useState(() => format(new Date(), "yyyy-MM-01"));
   const [toDate, setToDate] = useState(() => format(new Date(), "yyyy-MM-dd"));
@@ -61,7 +62,8 @@ const CollaboratorStats = () => {
           headers: { Authorization: `Bearer ${token}` },
         });
 
-        setStats(res.data || []);
+        setStats(res.data.timesheets || []);
+        setTotalDuration(res.data.total || 0);
       } catch (err) {
         console.error("Erreur récupération stats :", err);
 
@@ -145,7 +147,7 @@ const CollaboratorStats = () => {
         </div>
 
         <div className="text-right mb-6 font-semibold text-lg text-gray-700">
-          Total : {totalHours}
+        Total : {Math.floor(totalDuration / 60)}h {totalDuration % 60}m
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
