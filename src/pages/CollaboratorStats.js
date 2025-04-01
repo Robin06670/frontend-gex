@@ -66,7 +66,7 @@ const CollaboratorStats = () => {
         setStats(res.data.timesheets || []);
         setTotalDuration(res.data.total || 0);
       } catch (err) {
-        console.error("Erreur récupération stats :", err);
+        console.error("Erreur récupération stats :", err?.response?.data || err.message || err);
 
         // fallback de test
         setStats([]);
