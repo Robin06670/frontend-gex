@@ -12,6 +12,7 @@ const COLORS = ["#4f46e5", "#3b82f6", "#06b6d4", "#10b981", "#f59e0b", "#ef4444"
 
 const CollaboratorStats = () => {
   const { id } = useParams();
+  const token = localStorage.getItem("token");
   const [collaborator, setCollaborator] = useState(null);
   const [stats, setStats] = useState([]);
   const [clients, setClients] = useState([]);
@@ -20,15 +21,12 @@ const CollaboratorStats = () => {
   const [clientModalOpen, setClientModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [totalDuration, setTotalDuration] = useState(0);
-
   const [fromDate, setFromDate] = useState(() => format(new Date(), "yyyy-MM-01"));
   const [toDate, setToDate] = useState(() => format(new Date(), "yyyy-MM-dd"));
 
   useEffect(() => {
     const fetchCollaboratorAndClients = async () => {
       try {
-        const token = localStorage.getItem("token");
-
         const userRes = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/collaborators/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -52,7 +50,6 @@ const CollaboratorStats = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const token = localStorage.getItem("token");
         let url = `${process.env.REACT_APP_API_BASE_URL}/api/timesheets/stats/${id}?from=${fromDate}&to=${toDate}`;
         if (selectedClientId) {
           url += `&client=${selectedClientId}`; // ✅ correct
