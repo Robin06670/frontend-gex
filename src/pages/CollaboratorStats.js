@@ -61,6 +61,7 @@ const CollaboratorStats = () => {
         const res = await axios.get(url, {
           headers: { Authorization: `Bearer ${token}` },
         });
+        console.log("🔄 Réponse de l'API :", res.data);
 
         setStats(res.data.timesheets || []);
         setTotalDuration(res.data.total || 0);
