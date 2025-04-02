@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
+import { Sector } from "recharts";
 import {
   PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip,
   Legend, ResponsiveContainer
@@ -9,6 +10,54 @@ import { format } from "date-fns";
 import axios from "axios";
 
 const COLORS = ["#4f46e5", "#3b82f6", "#06b6d4", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"];
+const renderActiveShape = (props) => {
+  const {
+    cx, cy, innerRadius, outerRadius, startAngle, endAngle,
+    fill, payload, midAngle,
+  } = props;
+
+  const RADIAN = Math.PI / 180;
+  const sin = Math.sin(-RADIAN * midAngle);
+  const cos = Math.cos(-RADIAN * midAngle);
+
+  return (
+    <g>
+      <Sector
+        cx={cx}
+        cy={cy}
+        innerRadius={innerRadius}
+        outerRadius={outerRadius + 8}
+        startAngle={startAngle}
+        endAngle={endAngle}
+        fill={fill}
+      />
+    </g>
+  );
+};
+
+const CustomBarTooltip = ({ active, payload }) => {
+  if (active && payload && payload.length > 0) {
+    const { task, amount, duration } = payload[0].payload;
+    const h = Math.floor(duration / 60);
+    const m = duration % 60;
+    return (
+      <div style={{
+        background: "white",
+        border: "1px solid #ccc",
+        padding: "8px 12px",
+        borderRadius: "6px",
+        boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+        fontSize: "14px",
+        color: "#333"
+      }}>
+        <div><strong>{task}</strong></div>
+        <div>{h}h {m > 0 ? `${m}m` : ""}</div>
+        <div>{amount.toFixed(2)} €</div>
+      </div>
+    );
+  }
+  return null;
+};
 
 const CollaboratorStats = () => {
   const { id } = useParams();
@@ -23,6 +72,8 @@ const CollaboratorStats = () => {
   const [totalDuration, setTotalDuration] = useState(0);
   const [fromDate, setFromDate] = useState(() => format(new Date(), "yyyy-MM-01"));
   const [toDate, setToDate] = useState(() => format(new Date(), "yyyy-MM-dd"));
+  const [activeIndex, setActiveIndex] = useState(null);
+  const [barHoverIndex, setBarHoverIndex] = useState(null);
 
   useEffect(() => {
     const fetchCollaboratorAndClients = async () => {
@@ -76,6 +127,7 @@ const CollaboratorStats = () => {
   const totalMinutes = Array.isArray(stats)
   ? stats.reduce((acc, item) => acc + item.duration, 0)
   : 0;
+  const selectedClient = clients.find(c => c._id === selectedClientId);
   const totalHours = `${Math.floor(totalMinutes / 60)}h ${totalMinutes % 60}m`;
 
   const pieData = stats.reduce((acc, item) => {
@@ -160,20 +212,70 @@ const CollaboratorStats = () => {
           </div>
         </div>
 
-        <div className="text-right mb-6 font-semibold text-lg text-gray-700">
-        Total : {Math.floor(totalDuration / 60)}h {totalDuration % 60}m
+        <div className="flex items-center justify-between mb-6 px-4">
+          {selectedClient ? (
+            <div className="text-center text-lg font-semibold text-gray-800 mx-auto">
+              {selectedClient.company}
+            </div>
+          ) : (
+            <div></div> // espace vide pour équilibrer
+          )}
+          <div className="text-right font-semibold text-lg text-gray-700 whitespace-nowrap">
+            Total : {Math.floor(totalDuration / 60)}h {totalDuration % 60}m
+          </div>
         </div>
+
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div className="bg-white shadow rounded p-4">
             <h2 className="text-xl font-bold text-gray-700 mb-4">Répartition par tâche</h2>
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
-                <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} label>
+              <Pie
+                data={pieData}
+                dataKey="value"
+                nameKey="name"
+                cx="50%"
+                cy="50%"
+                outerRadius={100}
+                isAnimationActive={true}
+                activeShape={renderActiveShape}
+                activeIndex={activeIndex}
+                onMouseEnter={(_, index) => setActiveIndex(index)}
+                onMouseLeave={() => setActiveIndex(null)}
+                labelLine={false}        // enlève les traits noirs
+                label={({ value }) => {
+                  const h = Math.floor(value / 60);
+                  const m = value % 60;
+                  return m === 0 ? `${h}h` : `${h}h ${m}m`;
+                }}                
+              >
                   {pieData.map((_, index) => (
                     <Cell key={index} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
+                <Tooltip
+                  content={({ active, payload }) => {
+                    if (active && payload && payload.length > 0) {
+                      const task = payload[0].name || payload[0].payload.name;
+                      return (
+                        <div style={{
+                          background: "white",
+                          border: "1px solid #ccc",
+                          padding: "8px 12px",
+                          borderRadius: "6px",
+                          boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+                          fontSize: "14px",
+                          color: "#333"
+                        }}>
+                          {task}
+                        </div>
+                      );
+                    }
+                    return null;
+                  }}
+                />
+
                 <Legend />
               </PieChart>
             </ResponsiveContainer>
@@ -183,16 +285,32 @@ const CollaboratorStats = () => {
           <h2 className="text-xl font-bold text-gray-700 mb-4">Montants facturables par tâche</h2>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={billedData}>
-                <XAxis dataKey="task" />
+              <XAxis
+                dataKey="task"
+                angle={-20}
+                textAnchor="end"
+                interval={0}
+                height={60}
+                tick={{ fontSize: 12 }}
+              />
+
                 <YAxis />
-                <Tooltip
-                  formatter={(value, name, props) => {
-                    const entry = billedData.find(e => e.task === props.payload.task);
-                    return [`${entry.amount.toFixed(2)} €`, `${entry.duration} min (${Math.floor(entry.duration / 60)}h ${entry.duration % 60}m)`];
-                  }}
-                />
-                <Legend />
-                <Bar dataKey="amount" fill="#4f46e5" name="Montant (€)" />
+                <Tooltip content={<CustomBarTooltip />} />
+                <Bar dataKey="amount">
+                  {billedData.map((entry, index) => (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={
+                        barHoverIndex === index
+                          ? "#4338ca" // couleur foncée au survol
+                          : COLORS[index % COLORS.length]
+                      }
+                      onMouseEnter={() => setBarHoverIndex(index)}
+                      onMouseLeave={() => setBarHoverIndex(null)}
+                    />
+                  ))}
+                </Bar>
+
               </BarChart>
             </ResponsiveContainer>
           </div>
