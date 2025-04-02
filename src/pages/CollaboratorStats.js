@@ -208,9 +208,13 @@ const CollaboratorStats = () => {
                 type="text"
                 placeholder="Rechercher un client"
                 value={searchTerm}
-                onChange={handleSearch}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  handleSearch(e);
+                }}
                 className="w-full mb-4 px-3 py-2 border rounded"
               />
+
 
               <button
                 onClick={() => {
