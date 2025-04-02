@@ -88,6 +88,23 @@ const CollaboratorStats = () => {
     return acc;
   }, []);
 
+  const billedData = stats
+  .filter(s => s.facturable && s.amount) // Ne garder que les lignes facturables
+  .reduce((acc, entry) => {
+    const existing = acc.find(e => e.task === entry.task);
+    if (existing) {
+      existing.amount += entry.amount;
+      existing.duration += entry.duration;
+    } else {
+      acc.push({
+        task: entry.task,
+        amount: entry.amount,
+        duration: entry.duration,
+      });
+    }
+    return acc;
+  }, []);
+
   const barData = [
     {
       name: "Facturation",
@@ -104,12 +121,11 @@ const CollaboratorStats = () => {
 
   const handleSearch = (e) => {
     const term = e.target.value.toLowerCase();
-    setSearchTerm(term);
     const filtered = clients.filter(c =>
-      c.name.toLowerCase().includes(term) || c.activity?.toLowerCase().includes(term)
+      c.company?.toLowerCase().includes(term) || c.activity?.toLowerCase().includes(term)
     );
     setFilteredClients(filtered);
-  };
+  };  
 
   return (
     <div className="flex h-screen bg-gray-100 overflow-hidden">
@@ -164,15 +180,19 @@ const CollaboratorStats = () => {
           </div>
 
           <div className="bg-white shadow rounded p-4">
-            <h2 className="text-xl font-bold text-gray-700 mb-4">Heures facturables</h2>
+          <h2 className="text-xl font-bold text-gray-700 mb-4">Montants facturables par tâche</h2>
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={barData}>
-                <XAxis dataKey="name" />
+              <BarChart data={billedData}>
+                <XAxis dataKey="task" />
                 <YAxis />
-                <Tooltip />
+                <Tooltip
+                  formatter={(value, name, props) => {
+                    const entry = billedData.find(e => e.task === props.payload.task);
+                    return [`${entry.amount.toFixed(2)} €`, `${entry.duration} min (${Math.floor(entry.duration / 60)}h ${entry.duration % 60}m)`];
+                  }}
+                />
                 <Legend />
-                <Bar dataKey="Facturable" fill="#3b82f6" />
-                <Bar dataKey="NonFacturable" fill="#ef4444" />
+                <Bar dataKey="amount" fill="#4f46e5" name="Montant (€)" />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -203,18 +223,18 @@ const CollaboratorStats = () => {
               </button>
 
               <ul className="space-y-2">
-                {filteredClients.map((client) => (
-                  <li
-                    key={client._id}
-                    className="cursor-pointer hover:bg-blue-50 p-2 rounded text-gray-700"
-                    onClick={() => {
-                      setSelectedClientId(client._id);
-                      setClientModalOpen(false);
-                    }}
-                  >
-                    {client.name} {client.activity && `(${client.activity})`}
-                  </li>
-                ))}
+              {filteredClients.map(client => (
+                <li
+                  key={client._id}
+                  className="cursor-pointer hover:bg-blue-50 p-2 rounded text-gray-700"
+                  onClick={() => {
+                    setSelectedClientId(client._id);
+                    setClientModalOpen(false);
+                  }}
+                >
+                  {client.company} {client.activity && `(${client.activity})`}
+                </li>
+              ))}
               </ul>
             </div>
           </div>
