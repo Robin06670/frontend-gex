@@ -162,7 +162,7 @@ const CollaboratorStats = () => {
   ? clients.filter(c => c._id === selectedClientId)
   : clients;
 
-  const nonAffectableClient = clients.find(c => c.company?.toLowerCase() === "non affectable");
+  const nonAffectableClient = clients.find(c => c.company?.toLowerCase() === "Non affectable");
   const nonAffectableClientId = nonAffectableClient?._id;
 
   const clientSummaries = visibleClients.map(client => {
