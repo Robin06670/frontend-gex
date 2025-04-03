@@ -347,9 +347,10 @@ const CollaboratorStats = () => {
               <tr>
                 <th className="text-left p-3 border-b">Client</th>
                 <th className="text-right p-3 border-b">Temps total</th>
+                <th className="text-right p-3 border-b">Temps théorique</th>
                 <th className="text-right p-3 border-b">Montant facturable</th>
                 <th className="text-right p-3 border-b">Honoraires théoriques</th>
-                <th className="text-right p-3 border-b">Temps théorique</th>
+                
               </tr>
             </thead>
             <tbody className="text-sm text-gray-700">
@@ -359,9 +360,9 @@ const CollaboratorStats = () => {
                   <td className="text-right p-3">
                     {Math.floor(c.duration / 60)}h {c.duration % 60}m
                   </td>
+                  <td className="text-right p-3">{c.theoreticalTime}h</td>
                   <td className="text-right p-3">{c.billed.toFixed(2)} €</td>
                   <td className="text-right p-3">{c.fees.toFixed(2)} €</td>
-                  <td className="text-right p-3">{c.theoreticalTime}h</td>
                 </tr>
               ))}
             </tbody>
