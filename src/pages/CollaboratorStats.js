@@ -385,6 +385,23 @@ const CollaboratorStats = () => {
                   <td className="text-right px-6 py-4">{c.fees.toFixed(2)} €</td>
                 </tr>
               ))}
+              <tr className="font-semibold bg-blue-50">
+                <td className="px-6 py-4 text-left">Total</td>
+                <td className="text-right px-6 py-4">
+                  {Math.floor(clientSummaries.reduce((acc, c) => acc + c.duration, 0) / 60)}h{" "}
+                  {clientSummaries.reduce((acc, c) => acc + c.duration, 0) % 60}m
+                </td>
+                <td className="text-right px-6 py-4">
+                  {clientSummaries.reduce((acc, c) => acc + c.theoreticalTime, 0)}h
+                </td>
+                <td className="text-right px-6 py-4">
+                  {clientSummaries.reduce((acc, c) => acc + c.billed, 0).toFixed(2)} €
+                </td>
+                <td className="text-right px-6 py-4">
+                  {clientSummaries.reduce((acc, c) => acc + c.fees, 0).toFixed(2)} €
+                </td>
+              </tr>
+
             </tbody>
           </table>
 
