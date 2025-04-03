@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Sidebar from "../components/Sidebar";
 import axios from "axios";
+import Select from "react-select";
 
 const Timesheet = () => {
   const [clients, setClients] = useState([]);
@@ -266,13 +267,20 @@ const Timesheet = () => {
 
   const taskOptions = [
     "Saisie", "TVA", "Acomptes IS", "Autres déclarations fiscales",
-    "Révision", "Bilan", "Situation", "Prévisionnel", "Paies", "DSN", "Mails",
-    "Autres déclarations sociales", "Téléphone", "Juridique", "CAC",
+    "Révision", "Bilan", "Situation", "Prévisionnel", "Attestation", "Paies", "DSN", 
+    "Autres déclarations sociales", "Mails", "Téléphone", "Juridique", "CAC",
     "Réunion", "Formation", "Entraide", "Rendez-vous", "Autre"
   ];
 
+  const clientOptions = [
+    { value: "none", label: "Non affectable" },
+    ...clients.map(client => ({
+      value: client._id,
+      label: client.company
+    }))
+  ];
+  
   const isLocked = lockedDates[selectedDate];
-
 
   return (
     <div className="flex h-screen bg-gray-100 overflow-hidden">
@@ -307,20 +315,15 @@ const Timesheet = () => {
         {!isLocked && (
           <>
             <div className="bg-white rounded-lg shadow-md p-6 mb-2 grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
-              <select
-                name="client"
-                value={form.client}
-                onChange={handleChange}
-                className="p-2 border rounded"
-              >
-                <option value="" disabled hidden>Client</option>
-                <option value="none">Non affectable</option>
-                {clients.map(client => (
-                  <option key={client._id} value={client._id}>
-                    {client.company}
-                  </option>
-                ))}
-              </select>
+            <Select
+              options={clientOptions}
+              value={clientOptions.find(opt => opt.value === form.client)}
+              onChange={(selected) => setForm({ ...form, client: selected.value })}
+              placeholder="Client"
+              isSearchable
+              className="text-sm"
+            />
+
 
               <select
                 name="task"
@@ -352,7 +355,7 @@ const Timesheet = () => {
 
               <button
                 onClick={handleAddOrUpdate}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+                className="bg-blue-800 hover:bg-blue-900 text-white px-4 py-2 rounded shadow"
               >
                 {editIndex !== null ? "Modifier" : "+ Ajouter"}
               </button>
