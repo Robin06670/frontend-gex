@@ -115,6 +115,7 @@ const CollaboratorStats = () => {
         setTotalDuration(res.data.total || 0);
       } catch (err) {
         console.error("Erreur récupération stats :", err?.response?.data || err.message || err);
+        console.log("📦 stats reçues :", stats);
 
         // fallback de test
         setStats([]);
@@ -156,6 +157,29 @@ const CollaboratorStats = () => {
     }
     return acc;
   }, []);
+
+  const visibleClients = selectedClientId
+  ? clients.filter(c => c._id === selectedClientId)
+  : clients;
+
+  const clientSummaries = visibleClients.map(client => {
+    const clientEntries = stats.filter(s => s.client === client._id); // ✅ fonctionne si client est string
+  
+    const totalDuration = clientEntries.reduce((acc, s) => acc + s.duration, 0);
+    const totalBilled = clientEntries
+      .filter(s => s.facturable)
+      .reduce((acc, s) => acc + (s.amount || 0), 0);
+  
+    return {
+      company: client.company,
+      duration: totalDuration,
+      billed: totalBilled,
+      fees: client.fees || 0,
+      theoreticalTime: client.theoreticalTime || 0,
+    };
+  });
+  
+  
 
   const barData = [
     {
@@ -315,6 +339,35 @@ const CollaboratorStats = () => {
             </ResponsiveContainer>
           </div>
         </div>
+
+        <div className="mt-10 overflow-x-auto">
+          <h2 className="text-xl font-bold text-gray-700 mb-4">Récapitulatif par client</h2>
+          <table className="min-w-full bg-white border border-gray-200 shadow-sm rounded">
+            <thead className="bg-gray-50 text-sm text-gray-600">
+              <tr>
+                <th className="text-left p-3 border-b">Client</th>
+                <th className="text-right p-3 border-b">Temps total</th>
+                <th className="text-right p-3 border-b">Montant facturable</th>
+                <th className="text-right p-3 border-b">Honoraires théoriques</th>
+                <th className="text-right p-3 border-b">Temps théorique</th>
+              </tr>
+            </thead>
+            <tbody className="text-sm text-gray-700">
+              {clientSummaries.map((c, idx) => (
+                <tr key={idx} className="border-t hover:bg-gray-50">
+                  <td className="p-3">{c.company}</td>
+                  <td className="text-right p-3">
+                    {Math.floor(c.duration / 60)}h {c.duration % 60}m
+                  </td>
+                  <td className="text-right p-3">{c.billed.toFixed(2)} €</td>
+                  <td className="text-right p-3">{c.fees.toFixed(2)} €</td>
+                  <td className="text-right p-3">{c.theoreticalTime}h</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
 
         {/* MODALE DE SÉLECTION CLIENT */}
         {clientModalOpen && (
