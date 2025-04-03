@@ -298,7 +298,7 @@ const Timesheet = () => {
                 isLocked ? 'bg-gray-500' : 'bg-green-600'
               } text-white`}
             >
-              {isLocked ? "Déverrouiller" : "Valider la feuille"}
+              {isLocked ? "Déverrouiller" : "Valider"}
             </button>
           </div>
         </div>

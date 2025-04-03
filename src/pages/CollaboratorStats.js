@@ -178,7 +178,23 @@ const CollaboratorStats = () => {
       theoreticalTime: client.theoreticalTime || 0,
     };
   });
-  
+  // ➕ Ajouter une ligne "Non affectable"
+  const nonClientEntries = stats.filter(s => !s.client);
+  if (nonClientEntries.length > 0) {
+    const totalDuration = nonClientEntries.reduce((acc, s) => acc + s.duration, 0);
+    const totalBilled = nonClientEntries
+      .filter(s => s.facturable)
+      .reduce((acc, s) => acc + (s.amount || 0), 0);
+
+    clientSummaries.push({
+      company: "Non affectable",
+      duration: totalDuration,
+      billed: totalBilled,
+      fees: 0,
+      theoreticalTime: 0,
+    });
+  }
+
   
 
   const barData = [
@@ -343,7 +359,7 @@ const CollaboratorStats = () => {
         <div className="mt-10 overflow-x-auto">
           <h2 className="text-xl font-bold text-gray-700 mb-4">Récapitulatif par client</h2>
           <table className="min-w-full bg-white border border-gray-300 rounded-lg shadow overflow-hidden">
-            <thead className="bg-gradient-to-r from-gray-100 to-gray-200 text-sm text-gray-700 uppercase tracking-wider">
+          <thead className="bg-blue-100 text-sm text-gray-800 tracking-wide">
               <tr>
                 <th className="text-left px-6 py-3">Client</th>
                 <th className="text-right px-6 py-3">Temps total</th>
@@ -352,6 +368,7 @@ const CollaboratorStats = () => {
                 <th className="text-right px-6 py-3">Honoraires théoriques</th>
               </tr>
             </thead>
+
             <tbody className="divide-y divide-gray-200 text-sm text-gray-800">
               {clientSummaries.map((c, idx) => (
                 <tr key={idx} className="hover:bg-blue-50 transition-all">
