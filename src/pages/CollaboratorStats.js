@@ -162,6 +162,9 @@ const CollaboratorStats = () => {
   ? clients.filter(c => c._id === selectedClientId)
   : clients;
 
+  const nonAffectableClient = clients.find(c => c.company?.toLowerCase() === "non affectable");
+  const nonAffectableClientId = nonAffectableClient?._id;
+
   const clientSummaries = visibleClients.map(client => {
     const clientEntries = stats.filter(s => s.client === client._id); // ✅ fonctionne si client est string
   
@@ -178,8 +181,11 @@ const CollaboratorStats = () => {
       theoreticalTime: client.theoreticalTime || 0,
     };
   });
-  // ➕ Ajouter une ligne "Non affectable"
-  const nonClientEntries = stats.filter(s => !s.client);
+  // ➕ Ligne spéciale pour "Non affectable" (sans client OU client = celui nommé "Non affectable")
+  const nonClientEntries = stats.filter(s => {
+    return !s.client || s.client === nonAffectableClientId;
+  });
+
   if (nonClientEntries.length > 0) {
     const totalDuration = nonClientEntries.reduce((acc, s) => acc + s.duration, 0);
     const totalBilled = nonClientEntries
@@ -194,9 +200,7 @@ const CollaboratorStats = () => {
       theoreticalTime: 0,
     });
   }
-
   
-
   const barData = [
     {
       name: "Facturation",
