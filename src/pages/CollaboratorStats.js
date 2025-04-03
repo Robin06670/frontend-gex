@@ -342,31 +342,31 @@ const CollaboratorStats = () => {
 
         <div className="mt-10 overflow-x-auto">
           <h2 className="text-xl font-bold text-gray-700 mb-4">Récapitulatif par client</h2>
-          <table className="min-w-full bg-white border border-gray-200 shadow-sm rounded">
-            <thead className="bg-gray-50 text-sm text-gray-600">
+          <table className="min-w-full bg-white border border-gray-300 rounded-lg shadow overflow-hidden">
+            <thead className="bg-gradient-to-r from-gray-100 to-gray-200 text-sm text-gray-700 uppercase tracking-wider">
               <tr>
-                <th className="text-left p-3 border-b">Client</th>
-                <th className="text-right p-3 border-b">Temps total</th>
-                <th className="text-right p-3 border-b">Temps théorique</th>
-                <th className="text-right p-3 border-b">Montant facturable</th>
-                <th className="text-right p-3 border-b">Honoraires théoriques</th>
-                
+                <th className="text-left px-6 py-3">Client</th>
+                <th className="text-right px-6 py-3">Temps total</th>
+                <th className="text-right px-6 py-3">Temps théorique</th>
+                <th className="text-right px-6 py-3">Montant facturable</th>
+                <th className="text-right px-6 py-3">Honoraires théoriques</th>
               </tr>
             </thead>
-            <tbody className="text-sm text-gray-700">
+            <tbody className="divide-y divide-gray-200 text-sm text-gray-800">
               {clientSummaries.map((c, idx) => (
-                <tr key={idx} className="border-t hover:bg-gray-50">
-                  <td className="p-3">{c.company}</td>
-                  <td className="text-right p-3">
+                <tr key={idx} className="hover:bg-blue-50 transition-all">
+                  <td className="px-6 py-4 font-medium">{c.company}</td>
+                  <td className="text-right px-6 py-4">
                     {Math.floor(c.duration / 60)}h {c.duration % 60}m
                   </td>
-                  <td className="text-right p-3">{c.theoreticalTime}h</td>
-                  <td className="text-right p-3">{c.billed.toFixed(2)} €</td>
-                  <td className="text-right p-3">{c.fees.toFixed(2)} €</td>
+                  <td className="text-right px-6 py-4">{c.theoreticalTime}h</td>
+                  <td className="text-right px-6 py-4">{c.billed.toFixed(2)} €</td>
+                  <td className="text-right px-6 py-4">{c.fees.toFixed(2)} €</td>
                 </tr>
               ))}
             </tbody>
           </table>
+
         </div>
 
 
