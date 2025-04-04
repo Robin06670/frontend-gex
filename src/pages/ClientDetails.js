@@ -15,17 +15,19 @@ const ClientDetails = () => {
   console.log("🆕 Mode création :", isNew);
 
   const [clientData, setClientData] = useState({
-    firstName: "",
-    lastName: "",
+    company: "",
+    activity: "",
+    siren: "",
+    employees: "",
+    feesAccounting: "",
+    feesSocial: "",
+    feesLegal: "",
     email: "",
     phone: "",
     address: "",
-    company: "",
-    fees: "",
-    activity: "",
     theoreticalTime: "",
     collaborator: "",
-  });
+  });  
 
   const [collaborators, setCollaborators] = useState([]);
   const [error, setError] = useState("");
@@ -90,9 +92,13 @@ const ClientDetails = () => {
 
     const updatedClientData = {
       ...clientData,
-      fees: Number(clientData.fees),
+      employeeRate: 35, // valeur par défaut
+      feesAccounting: Number(clientData.feesAccounting),
+      feesSocial: Number(clientData.feesSocial),
+      feesLegal: Number(clientData.feesLegal),
+      employees: Number(clientData.employees),
       theoreticalTime: Number(clientData.theoreticalTime),
-    };
+    };    
 
     console.log("📤 Données envoyées au serveur :", updatedClientData);
 
@@ -115,6 +121,28 @@ const ClientDetails = () => {
       setError("Impossible d'enregistrer le client. " + (err.response?.data?.message || ""));
     }
   };
+  const handleChange = (key, value) => {
+    if (key === "employees") {
+      const employeeCount = Number(value);
+      setClientData(prev => ({
+        ...prev,
+        employees: employeeCount,
+        feesSocial: employeeCount * Number(prev.employeeRate)
+      }));
+    } else if (key === "employeeRate") {
+      const rate = Number(value);
+      setClientData(prev => ({
+        ...prev,
+        employeeRate: rate,
+        feesSocial: Number(prev.employees) * rate
+      }));
+    } else {
+      setClientData(prev => ({
+        ...prev,
+        [key]: value
+      }));
+    }
+  };
 
   if (loading) {
     return <p className="text-blue-500">⏳ Chargement en cours...</p>;
@@ -132,22 +160,25 @@ const ClientDetails = () => {
         <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-3xl mx-auto">
           <div className="grid grid-cols-2 gap-6">
             {[
-              { key: "firstName", label: "Prénom" },
-              { key: "lastName", label: "Nom" },
+              { key: "company", label: "Entreprise" },
+              { key: "activity", label: "Activité" },
+              { key: "siren", label: "N° SIREN" },
+              { key: "employees", label: "Salariés", type: "number" },
+              { key: "employeeRate", label: "Tarif par salarié (€)", type: "number" },
               { key: "email", label: "Email" },
               { key: "phone", label: "Téléphone" },
               { key: "address", label: "Adresse" },
-              { key: "company", label: "Entreprise" },
-              { key: "fees", label: "Honoraires (€)", type: "number" },
-              { key: "activity", label: "Activité" },
               { key: "theoreticalTime", label: "Temps théorique (h)", type: "number" },
-            ].map(({ key, label, type = "text" }, index) => (
+              { key: "feesAccounting", label: "Honoraires comptables (€)", type: "number" },
+              { key: "feesSocial", label: "Honoraires sociales (€)", type: "number" },
+              { key: "feesLegal", label: "Honoraires juridiques (€)", type: "number" },
+            ].map(({ key, label, type = "text" }, index) => (              
               <div key={index} className="flex flex-col">
                 <label className="text-gray-700 font-medium mb-1">{label}</label>
                 <input
                   type={type}
                   value={clientData[key]}
-                  onChange={(e) => setClientData({ ...clientData, [key]: e.target.value })}
+                  onChange={(e) => handleChange(key, e.target.value)}
                   className="p-3 border rounded-lg w-full text-gray-800 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 />
               </div>
