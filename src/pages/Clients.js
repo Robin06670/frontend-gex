@@ -75,14 +75,20 @@ const Clients = () => {
   };
 
   // 📌 Calculer la marge pour chaque client
-  const calculateMargin = (fees, collaboratorData, theoreticalTime) => {
-    if (!fees || !theoreticalTime) {
-      return 0;
-    }
+  const calculateMargin = (client, collaboratorData, theoreticalTime) => {
+    const {
+      feesAccounting = 0,
+      feesSocial = 0,
+      feesLegal = 0,
+    } = client;
+  
+    const totalFees = Number(feesAccounting) + Number(feesSocial) + Number(feesLegal);
+  
+    if (!totalFees || !theoreticalTime) return 0;
+  
     const cost = calculateCost(collaboratorData, theoreticalTime);
-    const margin = Number(fees) - cost;
-    return Math.round(margin); // Arrondir la marge à l'euro près
-  };
+    return Math.round(totalFees - cost);
+  };  
 
   // 📌 Filtrer et trier les clients
   const filteredClients = clients
@@ -93,7 +99,9 @@ const Clients = () => {
     .sort((a, b) => {
       if (sortBy === "company") return sortOrder === "asc" ? a.company.localeCompare(b.company) : b.company.localeCompare(a.company);
       if (sortBy === "activity") return sortOrder === "asc" ? a.activity.localeCompare(b.activity) : b.activity.localeCompare(a.activity);
-      if (sortBy === "fees") return sortOrder === "asc" ? a.fees - b.fees : b.fees - a.fees;
+      if (sortBy === "feesAccounting") return sortOrder === "asc" ? a.feesAccounting - b.feesAccounting : b.feesAccounting - a.feesAccounting;
+      if (sortBy === "feesSocial") return sortOrder === "asc" ? a.feesSocial - b.feesSocial : b.feesSocial - a.feesSocial;
+      if (sortBy === "feesLegal") return sortOrder === "asc" ? a.feesLegal - b.feesLegal : b.feesLegal - a.feesLegal;
       if (sortBy === "margin") {
         const marginA = calculateMargin(a.fees, a.collaborator, a.theoreticalTime);
         const marginB = calculateMargin(b.fees, b.collaborator, b.theoreticalTime);
@@ -189,7 +197,9 @@ return (
 
               {!isCollab && (
                 <>
-                  <th className="p-3 text-left cursor-pointer" onClick={() => toggleSortOrder("fees")}>Honoraires (€) <FaSort className="inline ml-1" /></th>
+                  <th className="p-3 text-left cursor-pointer" onClick={() => toggleSortOrder('feesAccounting')}>H. Comptables (€) <FaSort className="inline ml-1" /></th>
+                  <th className="p-3 text-left cursor-pointer" onClick={() => toggleSortOrder('feesSocial')}>H. Sociales (€) <FaSort className="inline ml-1" /></th>
+                  <th className="p-3 text-left cursor-pointer" onClick={() => toggleSortOrder('feesLegal')}>H. Juridiques (€) <FaSort className="inline ml-1" /></th>
                   <th className="p-3 text-left cursor-pointer" onClick={() => toggleSortOrder("margin")}>Marge (€) <FaSort className="inline ml-1" /></th>
                   <th className="p-3 text-center">Actions</th>
                 </>
@@ -198,7 +208,7 @@ return (
           </thead>
           <tbody>
             {filteredClients.map(client => {
-              const margin = calculateMargin(client.fees, client.collaborator, client.theoreticalTime);
+              const margin = calculateMargin(client, client.collaborator, client.theoreticalTime);
               return (
                 <tr key={client._id} className="border-b hover:bg-gray-100">
                   <td className="p-3">{client.company || "N/A"}</td>
@@ -213,7 +223,9 @@ return (
 
                   {!isCollab && (
                     <>
-                      <td className="p-3">{client.fees} €</td>
+                      <td className="p-3">{client.feesAccounting || 0} €</td>
+                      <td className="p-3">{client.feesSocial || 0} €</td>
+                      <td className="p-3">{client.feesLegal || 0} €</td>
                       <td className={`p-3 ${margin >= 0 ? "text-green-600" : "text-red-600"}`}>
                         {margin} €
                       </td>
