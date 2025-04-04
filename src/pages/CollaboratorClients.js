@@ -74,7 +74,9 @@ const CollaboratorClients = () => {
     .sort((a, b) => {
       if (sortBy === "company") return sortOrder === "asc" ? a.company.localeCompare(b.company) : b.company.localeCompare(a.company);
       if (sortBy === "activity") return sortOrder === "asc" ? a.activity.localeCompare(b.activity) : b.activity.localeCompare(a.activity);
-      if (sortBy === "fees") return sortOrder === "asc" ? a.fees - b.fees : b.fees - a.fees;
+      if (sortBy === "feesAccounting") return sortOrder === "asc" ? a.feesAccounting - b.feesAccounting : b.feesAccounting - a.feesAccounting;
+      if (sortBy === "feesSocial") return sortOrder === "asc" ? a.feesSocial - b.feesSocial : b.feesSocial - a.feesSocial;
+      if (sortBy === "feesLegal") return sortOrder === "asc" ? a.feesLegal - b.feesLegal : b.feesLegal - a.feesLegal;
       if (sortBy === "margin") return sortOrder === "asc" ? a.margin - b.margin : b.margin - a.margin;
       return 0;
     });
@@ -112,8 +114,14 @@ const CollaboratorClients = () => {
                     <th className="p-3 font-semibold cursor-pointer" onClick={() => toggleSortOrder("activity")}>
                       Activité <FaSort className="inline ml-1" />
                     </th>
-                    <th className="p-3 font-semibold cursor-pointer" onClick={() => toggleSortOrder("fees")}>
-                      Honoraires (€) <FaSort className="inline ml-1" />
+                    <th className="p-3 font-semibold cursor-pointer" onClick={() => toggleSortOrder("feesAccounting")}>
+                      H. Comptables <FaSort className="inline ml-1" />
+                    </th>
+                    <th className="p-3 font-semibold cursor-pointer" onClick={() => toggleSortOrder("feesSocial")}>
+                      H. Sociales <FaSort className="inline ml-1" />
+                    </th>
+                    <th className="p-3 font-semibold cursor-pointer" onClick={() => toggleSortOrder("feesLegal")}>
+                      H. Juridiques <FaSort className="inline ml-1" />
                     </th>
                     <th className="p-3 font-semibold cursor-pointer" onClick={() => toggleSortOrder("margin")}>
                       Marge (€) <FaSort className="inline ml-1" />
@@ -127,11 +135,11 @@ const CollaboratorClients = () => {
                       <tr key={client._id} className="border-t hover:bg-gray-100 transition-all">
                         <td className="p-3">{client.company || "N/A"}</td>
                         <td className="p-3">{client.activity || "N/A"}</td>
+                        <td className="p-3">{client.feesAccounting || 0} €</td>
+                        <td className="p-3">{client.feesSocial || 0} €</td>
+                        <td className="p-3">{client.feesLegal || 0} €</td>
                         <td className="p-3 text-blue-600 font-semibold">
-                          € {client.fees ? client.fees.toLocaleString() : "N/A"}
-                        </td>
-                        <td className="p-3 text-blue-600 font-semibold">
-                          € {client.margin.toLocaleString()}
+                          € {client.margin?.toLocaleString() || 0}
                         </td>
                         <td className="p-3">
                           {client.margin >= 0 ? (
