@@ -127,14 +127,14 @@ const ClientDetails = () => {
       setClientData(prev => ({
         ...prev,
         employees: employeeCount,
-        feesSocial: employeeCount * Number(prev.employeeRate)
+        feesSocial: employeeCount * Number(prev.employeeRate) * 12
       }));
     } else if (key === "employeeRate") {
       const rate = Number(value);
       setClientData(prev => ({
         ...prev,
         employeeRate: rate,
-        feesSocial: Number(prev.employees) * rate
+        feesSocial: Number(prev.employees) * rate * 12
       }));
     } else {
       setClientData(prev => ({
