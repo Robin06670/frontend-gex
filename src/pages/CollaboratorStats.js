@@ -177,7 +177,10 @@ const CollaboratorStats = () => {
       company: client.company,
       duration: totalDuration,
       billed: totalBilled,
-      fees: client.fees || 0,
+      fees:
+        (client.feesAccounting || 0) +
+        (client.feesSocial || 0) +
+        (client.feesLegal || 0),
       theoreticalTime: client.theoreticalTime || 0,
     };
   });

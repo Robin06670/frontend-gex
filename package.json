@@ -13,6 +13,7 @@
     "chart.js": "^4.4.8",
     "date-fns": "^4.1.0",
     "framer-motion": "^12.4.7",
+    "papaparse": "^5.5.2",
     "react": "^19.0.0",
     "react-chartjs-2": "^5.3.0",
     "react-countup": "^6.5.3",
@@ -27,7 +28,8 @@
     "styled-components": "^6.1.15",
     "vis-data": "^7.1.9",
     "vis-network": "^9.1.9",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "xlsx": "^0.18.5"
   },
   "scripts": {
     "start": "react-scripts start",

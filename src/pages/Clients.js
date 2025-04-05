@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { FaEuroSign, FaPlus, FaTrash, FaSearch, FaSort, FaEye } from "react-icons/fa";
 import CountUp from "react-countup";
 import axios from "axios";
+import * as XLSX from "xlsx";
+import Papa from "papaparse";
 
 const Clients = () => {
   const navigate = useNavigate();
@@ -12,6 +14,8 @@ const Clients = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("company");
   const [sortOrder, setSortOrder] = useState("asc");
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [importedClients, setImportedClients] = useState([]);
 
   const user = JSON.parse(localStorage.getItem("user"));
   const isCollab = user?.role === "collaborateur";
@@ -150,23 +154,61 @@ const handleDeleteClient = async (id) => {
   }
 };
 
+const handleFileImport = (event) => {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+
+  reader.onload = (e) => {
+    const data = e.target.result;
+
+    if (file.name.endsWith(".csv")) {
+      const parsed = Papa.parse(data, { header: true });
+      setImportedClients(parsed.data);
+    } else if (file.name.endsWith(".xlsx")) {
+      const workbook = XLSX.read(data, { type: "binary" });
+      const sheetName = workbook.SheetNames[0];
+      const sheet = workbook.Sheets[sheetName];
+      const json = XLSX.utils.sheet_to_json(sheet);
+      setImportedClients(json);
+    }
+  };
+
+  if (file.name.endsWith(".csv")) {
+    reader.readAsText(file);
+  } else {
+    reader.readAsBinaryString(file);
+  }
+};
+
 return (
   <div className="flex h-screen bg-gray-100 overflow-hidden">
     <Sidebar />
     <div className="flex-1 flex flex-col h-screen overflow-y-auto p-6">
       
       {/* En-tête avec bouton Ajouter et Titre */}
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-between items-start mb-6">
         <h1 className="text-3xl font-bold text-gray-800">Liste des Clients</h1>
         {!isCollab && (
-          <button 
-            onClick={() => navigate("/clients/new")} 
-            className="bg-green-600 text-white px-4 py-2 rounded-lg shadow-md hover:bg-green-700 flex items-center transition-transform transform hover:scale-105"
-          >
-            <FaPlus className="mr-2" /> Ajouter Client
-          </button>
+          <div className="flex items-center space-x-4">
+            <button 
+              onClick={() => navigate("/clients/new")} 
+              className="bg-green-600 text-white px-4 py-2 rounded-lg shadow-md hover:bg-green-700 flex items-center transition-transform transform hover:scale-105"
+            >
+              <FaPlus className="mr-2" /> Ajouter Client
+            </button>
+
+            <button 
+              onClick={() => setShowImportModal(true)} 
+              className="bg-indigo-600 text-white px-4 py-2 rounded-lg shadow-md hover:bg-indigo-700 flex items-center transition-transform transform hover:scale-105"
+            >
+              <FaPlus className="mr-2" /> Importer des clients
+            </button>
+          </div>
         )}
       </div>
+
 
       {/* Barre de recherche */}
       <div className="relative w-full max-w-lg mx-auto mb-6">
@@ -242,6 +284,69 @@ return (
         </table>
       </div>
     </div>
+    {showImportModal && (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white p-6 rounded-lg w-[600px] shadow-lg max-h-[80vh] overflow-y-auto">
+          <h2 className="text-xl font-bold mb-4">Importer des clients (.csv ou .xlsx)</h2>
+
+          <input
+            type="file"
+            accept=".csv,.xlsx"
+            onChange={handleFileImport}
+            className="mb-4 border p-2 w-full"
+          />
+
+          {importedClients.length > 0 && (
+            <div className="mb-4 max-h-48 overflow-y-auto text-sm border p-2">
+              {importedClients.map((client, idx) => (
+                <pre key={idx} className="text-xs text-gray-700">{JSON.stringify(client)}</pre>
+              ))}
+            </div>
+          )}
+
+          <div className="flex justify-end gap-4">
+            <button
+              onClick={() => setShowImportModal(false)}
+              className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+            >
+              Annuler
+            </button>
+            <button
+              onClick={async () => {
+                const token = localStorage.getItem("token");
+                try {
+                  for (const client of importedClients) {
+                    const payload = {
+                      ...client,
+                      employees: Number(client.employees || 0),
+                      employeeRate: Number(client.employeeRate || 0),
+                      feesAccounting: Number(client.feesAccounting || 0),
+                      feesSocial: Number(client.feesSocial || 0),
+                      feesLegal: Number(client.feesLegal || 0),
+                      theoreticalTime: Number(client.theoreticalTime || 0),
+                    };
+
+                    await axios.post(`${process.env.REACT_APP_API_BASE_URL}/api/clients`, payload, {
+                      headers: { Authorization: `Bearer ${token}` },
+                    });
+                  }
+
+                  alert("✅ Import terminé !");
+                  setShowImportModal(false);
+                  window.location.reload();
+                } catch (error) {
+                  console.error("❌ Erreur importation :", error);
+                  alert("❌ Une erreur est survenue pendant l'import.");
+                }
+              }}
+              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+            >
+              Importer tous
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
   </div>
 );
 };
