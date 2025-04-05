@@ -286,8 +286,49 @@ return (
     </div>
     {showImportModal && (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div className="bg-white p-6 rounded-lg w-[600px] shadow-lg max-h-[80vh] overflow-y-auto">
-          <h2 className="text-xl font-bold mb-4">Importer des clients (.csv ou .xlsx)</h2>
+        <div className="relative bg-white p-6 rounded-lg w-[700px] shadow-lg max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-bold">Importer des clients (.csv ou .xlsx)</h2>
+          <div className="relative group cursor-pointer">
+            <span className="bg-blue-700 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm">?</span>
+            <div className="absolute right-[-20px] top-[30px] bg-white border border-gray-300 text-sm text-gray-800 rounded-lg shadow-xl p-4 z-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none group-hover:pointer-events-auto w-[650px]">
+
+              <p className="mb-2 font-semibold">Structure attendue :</p>
+              <table className="w-full text-xs border mb-2">
+                <thead>
+                  <tr className="bg-gray-100">
+                    <th className="border px-2 py-1">Entreprise</th>
+                    <th className="border px-2 py-1">Activité</th>
+                    <th className="border px-2 py-1">N° SIREN</th>
+                    <th className="border px-2 py-1">Email</th>
+                    <th className="border px-2 py-1">Téléphone</th>
+                    <th className="border px-2 py-1">Adresse</th>
+                    <th className="border px-2 py-1">Salariés</th>
+                    <th className="border px-2 py-1">Tarif salarié</th>
+                    <th className="border px-2 py-1">Honoraires comptables</th>
+                    <th className="border px-2 py-1">Honoraires sociales</th>
+                    <th className="border px-2 py-1">Honoraires juridiques</th>
+                    <th className="border px-2 py-1">Temps théorique</th>
+                    <th className="border px-2 py-1">Collaborateur</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td className="border px-2 py-1" colSpan="13" align="center">Remplissez les valeurs dans un fichier Excel à importer</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <a
+                href="/mnt/data/modele_import_clients.xlsx"
+                download
+                className="inline-block mt-2 px-3 py-1 bg-indigo-600 text-white text-xs rounded hover:bg-indigo-700"
+              >
+                📥 Télécharger le modèle
+              </a>
+            </div>
+          </div>
+        </div>
 
           <input
             type="file"
