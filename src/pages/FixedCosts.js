@@ -26,7 +26,26 @@ const FixedCosts = () => {
 
   const [lockedFields, setLockedFields] = useState({});
   const [revenue, setRevenue] = useState(0);
-
+  const costOrder = [
+    "petitsMateriels",
+    "energies",
+    "sousTraitance",
+    "loyers",
+    "leasingsMateriels",
+    "leasingsVehicules",
+    "entretienReparations",
+    "logicielsProduction",
+    "assurances",
+    "honoraires",
+    "fraisGeneraux",
+    "fraisActes",
+    "telecomFraisPostaux",
+    "servicesBancaires",
+    "impotsTaxes",
+    "amortissements",
+    "autresFraisFixes"
+  ];
+  
   useEffect(() => {
     const fetchRevenue = async () => {
       try {
@@ -52,7 +71,15 @@ const FixedCosts = () => {
         });
         if (response.data) {
           const filteredData = Object.keys(response.data)
-            .filter(key => key !== "_id" && key !== "createdAt" && key !== "updatedAt" && key !== "__v" && key !== "user")
+          .filter(
+            key =>
+              key !== "_id" &&
+              key !== "createdAt" &&
+              key !== "updatedAt" &&
+              key !== "__v" &&
+              key !== "user" &&
+              key !== "cabinet"
+          )          
             .reduce((obj, key) => {
               obj[key] = response.data[key];
               return obj;
@@ -101,7 +128,7 @@ const FixedCosts = () => {
       <div className="flex-1 p-6 overflow-y-auto">
         <h1 className="text-3xl font-bold mb-6">Gestion des Frais Fixes</h1>
         <form className="space-y-4 bg-white p-6 rounded-lg shadow-lg">
-          {Object.keys(costs).map((key) => {
+        {costOrder.map((key) => {
             const costValue = parseFloat(costs[key]) || 0;
             const percentage = revenue ? ((costValue / revenue) * 100).toFixed(2) : 0;
 
