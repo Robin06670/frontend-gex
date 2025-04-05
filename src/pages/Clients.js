@@ -338,15 +338,20 @@ return (
 
                   
                     const payload = {
-                      ...client,
+                      company: client.company?.trim() || "Sans nom",
+                      activity: client.activity?.trim() || "Non précisé",
+                      siren: client.siren?.trim() || "",
+                      email: client.email?.trim() || "",
+                      phone: client.phone?.trim() || "",
+                      address: client.address?.trim() || "",
                       employees: Number(client.employees || 0),
                       employeeRate: Number(client.employeeRate || 0),
                       feesAccounting: Number(client.feesAccounting || 0),
                       feesSocial: Number(client.feesSocial || 0),
                       feesLegal: Number(client.feesLegal || 0),
                       theoreticalTime: Number(client.theoreticalTime || 0),
-                      collaborator: collaboratorId,
-                    };
+                      ...(collaboratorId ? { collaborator: collaboratorId } : {})
+                    };                    
                   
                     await axios.post(`${process.env.REACT_APP_API_BASE_URL}/api/clients`, payload, {
                       headers: { Authorization: `Bearer ${token}` },
