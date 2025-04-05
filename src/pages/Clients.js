@@ -316,6 +316,12 @@ return (
                 const token = localStorage.getItem("token");
                 try {
                   for (const client of importedClients) {
+                    // Vérification minimale : company, activity, email
+                    if (!client.company || !client.activity || !client.email) {
+                      console.warn("⏭️ Client ignoré (champs requis manquants) :", client);
+                      continue;
+                    }
+                  
                     const payload = {
                       ...client,
                       employees: Number(client.employees || 0),
@@ -324,8 +330,9 @@ return (
                       feesSocial: Number(client.feesSocial || 0),
                       feesLegal: Number(client.feesLegal || 0),
                       theoreticalTime: Number(client.theoreticalTime || 0),
+                      collaborator: client.collaborator || null,
                     };
-
+                  
                     await axios.post(`${process.env.REACT_APP_API_BASE_URL}/api/clients`, payload, {
                       headers: { Authorization: `Bearer ${token}` },
                     });
