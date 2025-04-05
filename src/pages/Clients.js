@@ -321,6 +321,21 @@ return (
                       console.warn("⏭️ Client ignoré (champs requis manquants) :", client);
                       continue;
                     }
+                    let collaboratorId = null;
+
+                    if (client.collaborator) {
+                      const collaboratorFound = collaborators.find(
+                        (c) =>
+                          `${c.firstName} ${c.lastName}`.toLowerCase().trim() === client.collaborator.toLowerCase().trim()
+                      );
+
+                      if (collaboratorFound) {
+                        collaboratorId = collaboratorFound._id;
+                      } else {
+                        console.warn("❗ Collaborateur non trouvé :", client.collaborator);
+                      }
+                    }
+
                   
                     const payload = {
                       ...client,
@@ -330,7 +345,7 @@ return (
                       feesSocial: Number(client.feesSocial || 0),
                       feesLegal: Number(client.feesLegal || 0),
                       theoreticalTime: Number(client.theoreticalTime || 0),
-                      collaborator: client.collaborator || null,
+                      collaborator: collaboratorId,
                     };
                   
                     await axios.post(`${process.env.REACT_APP_API_BASE_URL}/api/clients`, payload, {
