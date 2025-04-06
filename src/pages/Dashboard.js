@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Sidebar from "../components/Sidebar";
 import Topbar from "../components/Topbar";
-import { FaUsers, FaUserTie, FaThLarge, FaHome } from "react-icons/fa";
+import { FaUsers, FaUserTie, FaClock, FaHome } from "react-icons/fa";
 import CountUp from "react-countup";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -159,7 +159,7 @@ const Dashboard = () => {
             <p className="text-red-500">Impossible de récupérer les données.</p>
           )}
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div className={`grid gap-6 ${isCollab ? "grid-cols-2" : "grid-cols-1 sm:grid-cols-2"}`}>
             <StatCard
               icon={<FaUsers />}
               title="Clients"
@@ -167,6 +167,15 @@ const Dashboard = () => {
               color="bg-gradient-to-r from-blue-700 to-blue-900"
               onClick={() => navigate("/clients")}
             />
+
+            {isCollab && (
+              <StatCard
+              icon={<FaClock />}
+              title="Feuille de temps"
+              color="bg-gradient-to-r from-purple-600 to-indigo-800"
+              onClick={() => navigate("/timesheet")}
+            />            
+            )}
 
             {!isCollab && (
               <StatCard
@@ -247,9 +256,12 @@ const StatCard = ({ icon, title, value, color, onClick }) => {
       <div className="text-4xl mr-4">{icon}</div>
       <div>
         <h2 className="text-lg font-semibold">{title}</h2>
-        <p className="text-2xl">
-          <CountUp end={value} duration={2} separator=" " />
-        </p>
+        {typeof value === "number" && (
+          <p className="text-2xl">
+            <CountUp end={value} duration={2} separator=" " />
+          </p>
+        )}
+
       </div>
     </div>
   );
