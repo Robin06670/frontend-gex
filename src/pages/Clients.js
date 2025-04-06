@@ -171,7 +171,36 @@ const handleFileImport = (event) => {
       const sheetName = workbook.SheetNames[0];
       const sheet = workbook.Sheets[sheetName];
       const json = XLSX.utils.sheet_to_json(sheet);
-      setImportedClients(json);
+
+      // Dictionnaire de correspondance FR ➝ EN
+      const fieldMap = {
+        "Entreprise": "company",
+        "Activité": "activity",
+        "N° SIREN": "siren",
+        "Email": "email",
+        "Téléphone": "phone",
+        "Adresse": "address",
+        "Salariés": "employees",
+        "Tarif salarié": "employeeRate",
+        "Honoraires comptables": "feesAccounting",
+        "Honoraires sociales": "feesSocial",
+        "Honoraires juridiques": "feesLegal",
+        "Temps théorique": "theoreticalTime",
+        "Collaborateur": "collaborator"
+      };
+
+      // Conversion automatique des clés
+      const mappedClients = json.map(client => {
+        const mapped = {};
+        for (const [key, value] of Object.entries(client)) {
+          const mappedKey = fieldMap[key.trim()] || key;
+          mapped[mappedKey] = value;
+        }
+        return mapped;
+      });
+
+      setImportedClients(mappedClients);
+
     }
   };
 
@@ -291,8 +320,7 @@ return (
           <h2 className="text-xl font-bold">Importer des clients (.csv ou .xlsx)</h2>
           <div className="relative group cursor-pointer">
             <span className="bg-blue-700 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm">?</span>
-            <div className="absolute right-[-20px] top-[30px] bg-white border border-gray-300 text-sm text-gray-800 rounded-lg shadow-xl p-4 z-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none group-hover:pointer-events-auto w-[650px]">
-
+            <div className="fixed top-[120px] right-[100px] z-[9999] w-[1000px] hidden group-hover:flex flex-col items-start bg-white border border-gray-300 rounded-lg shadow-2xl p-4 text-sm text-gray-800">
               <p className="mb-2 font-semibold">Structure attendue :</p>
               <table className="w-full text-xs border mb-2">
                 <thead>
@@ -314,19 +342,23 @@ return (
                 </thead>
                 <tbody>
                   <tr>
-                    <td className="border px-2 py-1" colSpan="13" align="center">Remplissez les valeurs dans un fichier Excel à importer</td>
+                    <td className="border px-2 py-1 text-center" colSpan="13">
+                      Remplissez les valeurs dans un fichier Excel à importer
+                    </td>
                   </tr>
                 </tbody>
               </table>
 
               <a
-                href="/mnt/data/modele_import_clients.xlsx"
+                href="/assets/modele_import_clients.xlsx"
                 download
                 className="inline-block mt-2 px-3 py-1 bg-indigo-600 text-white text-xs rounded hover:bg-indigo-700"
               >
                 📥 Télécharger le modèle
               </a>
+
             </div>
+
           </div>
         </div>
 
