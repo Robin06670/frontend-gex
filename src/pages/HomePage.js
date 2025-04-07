@@ -34,10 +34,12 @@ export default function HomePage() {
         className="absolute bottom-0 left-0 w-full z-0"
       >
         <svg
-          viewBox="0 0 1440 320"
           xmlns="http://www.w3.org/2000/svg"
           className="w-full h-[200px] md:h-[250px] lg:h-[300px]"
+          viewBox="0 0 1440 320"
+          preserveAspectRatio="none"
         >
+
           <path
             fill="#1E40AF"  // Bleu identique au logo
             fillOpacity="1"
