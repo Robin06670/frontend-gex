@@ -137,7 +137,7 @@ function OrgChart() {
               id: collab._id,
               name: `${collab.firstName} ${collab.lastName}`,
               role: collab.role,
-              avatar: collab.gender === "Homme" ? "/images/homme.png" : "/images/femme.png",
+              avatar: `${process.env.PUBLIC_URL}/images/${collab.gender === "Homme" ? "homme" : "femme"}.png`,
               onEdit: () => handleEdit(collab._id),
               onDelete: () => handleDelete(collab._id),
             },
