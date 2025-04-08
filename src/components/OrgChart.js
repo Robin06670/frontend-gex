@@ -188,23 +188,6 @@ function OrgChart() {
       .catch(err => console.error("Erreur API :", err));
   }, [positions, handleEdit, handleDelete]);
 
-  fetch(`${process.env.REACT_APP_API_BASE_URL}/api/collaborators/${nodes.id}`, {
-    method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${localStorage.getItem("token")}`
-    },
-    body: JSON.stringify({ position: node.position })
-  })
-  .then(() => {
-    setPositions(prev => ({
-      ...prev,
-      [node.id]: node.position
-    }));
-  })
-  .catch(err => console.error("Erreur de sauvegarde de position :", err));  
-  };
-
   useEffect(() => {
     loadNodes();
   }, [loadNodes]);
@@ -213,6 +196,24 @@ function OrgChart() {
     custom: CustomNode,
     intermediate: IntermediateNode,
   }), []);
+
+  const onNodeDragStop = (event, node) => {
+    fetch(`${process.env.REACT_APP_API_BASE_URL}/api/collaborators/${node.id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${localStorage.getItem("token")}`
+      },
+      body: JSON.stringify({ position: node.position })
+    })
+    .then(() => {
+      setPositions(prev => ({
+        ...prev,
+        [node.id]: node.position
+      }));
+    })
+    .catch(err => console.error("Erreur de sauvegarde de position :", err));
+  };
 
   return (
     <ReactFlow
@@ -223,7 +224,8 @@ function OrgChart() {
       onNodeDragStop={onNodeDragStop}
       fitView
     >
-      <Controls />
-    </ReactFlow>
-  );
+        <Controls />
+      </ReactFlow>
+    );
+  }
 
