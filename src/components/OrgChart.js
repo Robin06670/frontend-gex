@@ -59,34 +59,14 @@ const IntermediateNode = () => {
 };
 
 export default function OrgChartWrapper() {
-  const [collaborators, setCollaborators] = useState([]);
-
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    fetch(`${process.env.REACT_APP_API_BASE_URL}/api/collaborators`, {
-      headers: {
-        "Authorization": `Bearer ${token}`
-      }
-    })
-      .then(res => {
-        if (!res.ok) {
-          throw new Error(`HTTP error! status: ${res.status}`);
-        }
-        return res.json();
-      })
-      .then(data => setCollaborators(data))
-      .catch(err => console.error("Erreur API collaborateurs :", err));
-  }, []);
-
   return (
     <ReactFlowProvider>
-      <OrgChart collaborators={collaborators} />
+      <OrgChart />
     </ReactFlowProvider>
   );
 }
 
-
-function OrgChart({ collaborators }) {
+function OrgChart() {
   const navigate = useNavigate();
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges] = useEdgesState([]);
@@ -112,31 +92,39 @@ function OrgChart({ collaborators }) {
   }, []);
 
   const loadNodes = useCallback(() => {
-    if (!Array.isArray(collaborators) || collaborators.length === 0) {
-      return;
-    }    
-  
-    const loadedCollaborators = collaborators;
-    let formattedNodes = [];
-    let formattedEdges = [];
-    let yOffset = 50;
-    let intermediateNodes = {};  
-  
-    // 📌 Détection des subordonnés ayant plusieurs managers
-    collaborators.forEach(collab => {
-      if (Array.isArray(collab.managers) && collab.managers.length > 1) {
-        const key = collab.managers.sort().join("-");
-        if (!intermediateNodes[key]) {
-          intermediateNodes[key] = {
-            id: `inter-${key}`,
-            position: positions[`inter-${key}`] || { x: 500, y: yOffset + 200 },
-            data: {},
-            type: "intermediate",
-            draggable: true,
-          };
-        }
+    fetch(`${process.env.REACT_APP_API_BASE_URL}/api/collaborators`, {
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${localStorage.getItem("token")}` // ✅ Ajout du token ici
       }
-    });
+    })
+      .then(res => res.json())
+      .then(collaborators => {
+        if (!Array.isArray(collaborators)) {
+          console.error("⚠️ Réponse API non conforme : collaborators n’est pas un tableau.");
+          return;
+        }
+
+        let formattedNodes = [];
+        let formattedEdges = [];
+        let yOffset = 50;
+        let intermediateNodes = {};
+
+        // 📌 Détection des subordonnés ayant plusieurs managers
+        collaborators.forEach(collab => {
+          if (collab.managers.length > 1) {
+            const key = collab.managers.sort().join("-");
+            if (!intermediateNodes[key]) {
+              intermediateNodes[key] = {
+                id: `inter-${key}`,
+                position: positions[`inter-${key}`] || { x: 500, y: yOffset + 200 },
+                data: {},
+                type: "intermediate",
+                draggable: true,
+              };
+            }
+          }
+        });
 
         formattedNodes.push(...Object.values(intermediateNodes));
 
@@ -149,7 +137,7 @@ function OrgChart({ collaborators }) {
               id: collab._id,
               name: `${collab.firstName} ${collab.lastName}`,
               role: collab.role,
-              avatar: `${process.env.PUBLIC_URL}/images/${collab.gender === "Homme" ? "homme" : "femme"}.png`,
+              avatar: collab.gender === "Homme" ? "/images/homme.png" : "/images/femme.png",
               onEdit: () => handleEdit(collab._id),
               onDelete: () => handleDelete(collab._id),
             },
@@ -160,7 +148,7 @@ function OrgChart({ collaborators }) {
 
         // 📌 Création des edges avec nœuds intermédiaires
         collaborators.forEach(collab => {
-          if (Array.isArray(collab.managers) && collab.managers.length === 1) {
+          if (collab.managers.length === 1) {
             formattedEdges.push({
               id: `e${collab.managers[0]}-${collab._id}`,
               source: collab.managers[0].toString(),
@@ -168,11 +156,11 @@ function OrgChart({ collaborators }) {
               animated: true,
               style: { stroke: "#4b5563", strokeWidth: 2 },
             });
-          } else if (Array.isArray(collab.managers) && collab.managers.length > 1) {
+          } else if (collab.managers.length > 1) {
             const key = collab.managers.sort().join("-");
             const interNodeId = `inter-${key}`;
 
-            Array.isArray(collab.managers) && collab.managers.forEach(managerId => {
+            collab.managers.forEach(managerId => {
               if (!formattedEdges.some(edge => edge.source === managerId.toString() && edge.target === interNodeId)) {
                 formattedEdges.push({
                   id: `e${managerId}-${interNodeId}`,
@@ -195,7 +183,9 @@ function OrgChart({ collaborators }) {
         });
 
         setNodes(formattedNodes);
-        setEdges(formattedEdges);      
+        setEdges(formattedEdges);
+      })
+      .catch(err => console.error("Erreur API :", err));
   }, [positions, handleEdit, handleDelete]);
 
   const onNodeDragStop = (event, node) => {
