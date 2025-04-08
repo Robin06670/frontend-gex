@@ -59,14 +59,34 @@ const IntermediateNode = () => {
 };
 
 export default function OrgChartWrapper() {
+  const [collaborators, setCollaborators] = useState([]);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    fetch(`${process.env.REACT_APP_API_BASE_URL}/collaborators`, {
+      headers: {
+        "Authorization": `Bearer ${token}`
+      }
+    })
+      .then(res => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+      })
+      .then(data => setCollaborators(data))
+      .catch(err => console.error("Erreur API collaborateurs :", err));
+  }, []);
+
   return (
     <ReactFlowProvider>
-      <OrgChart />
+      <OrgChart collaborators={collaborators} />
     </ReactFlowProvider>
   );
 }
 
-function OrgChart() {
+
+function OrgChart({ collaborators }) {
   const navigate = useNavigate();
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges] = useEdgesState([]);
@@ -92,39 +112,31 @@ function OrgChart() {
   }, []);
 
   const loadNodes = useCallback(() => {
-    fetch(`${process.env.REACT_APP_API_BASE_URL}/collaborators`, {
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${localStorage.getItem("token")}` // ✅ Ajout du token ici
-      }
-    })
-      .then(res => res.json())
-      .then(collaborators => {
-        if (!Array.isArray(collaborators)) {
-          console.error("⚠️ Réponse API non conforme : collaborators n’est pas un tableau.");
-          return;
+    if (!Array.isArray(collaborators) || collaborators.length === 0) {
+      return;
+    }    
+  
+    const loadedCollaborators = collaborators;
+    let formattedNodes = [];
+    let formattedEdges = [];
+    let yOffset = 50;
+    let intermediateNodes = {};  
+  
+    // 📌 Détection des subordonnés ayant plusieurs managers
+    collaborators.forEach(collab => {
+      if (Array.isArray(collab.managers) && collab.managers.length > 1) {
+        const key = collab.managers.sort().join("-");
+        if (!intermediateNodes[key]) {
+          intermediateNodes[key] = {
+            id: `inter-${key}`,
+            position: positions[`inter-${key}`] || { x: 500, y: yOffset + 200 },
+            data: {},
+            type: "intermediate",
+            draggable: true,
+          };
         }
-
-        let formattedNodes = [];
-        let formattedEdges = [];
-        let yOffset = 50;
-        let intermediateNodes = {};
-
-        // 📌 Détection des subordonnés ayant plusieurs managers
-        collaborators.forEach(collab => {
-          if (Array.isArray(collab.managers) && collab.managers.length > 1) {
-            const key = collab.managers.sort().join("-");
-            if (!intermediateNodes[key]) {
-              intermediateNodes[key] = {
-                id: `inter-${key}`,
-                position: positions[`inter-${key}`] || { x: 500, y: yOffset + 200 },
-                data: {},
-                type: "intermediate",
-                draggable: true,
-              };
-            }
-          }
-        });
+      }
+    });
 
         formattedNodes.push(...Object.values(intermediateNodes));
 
@@ -183,9 +195,7 @@ function OrgChart() {
         });
 
         setNodes(formattedNodes);
-        setEdges(formattedEdges);
-      })
-      .catch(err => console.error("Erreur API :", err));
+        setEdges(formattedEdges);      
   }, [positions, handleEdit, handleDelete]);
 
   const onNodeDragStop = (event, node) => {
