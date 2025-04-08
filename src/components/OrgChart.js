@@ -63,7 +63,7 @@ export default function OrgChartWrapper() {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    fetch(`${process.env.REACT_APP_API_BASE_URL}/collaborators`, {
+    fetch(`${process.env.REACT_APP_API_BASE_URL}/api/collaborators`, {
       headers: {
         "Authorization": `Bearer ${token}`
       }
@@ -100,7 +100,7 @@ function OrgChart({ collaborators }) {
   const handleDelete = useCallback((id) => {
     const confirmDelete = window.confirm("Êtes-vous sûr de vouloir supprimer ce collaborateur ?");
     if (confirmDelete) {
-      fetch(`${process.env.REACT_APP_API_BASE_URL}/collaborators/${id}`, {
+      fetch(`${process.env.REACT_APP_API_BASE_URL}/api/collaborators/${id}`, {
         method: "DELETE",
         headers: {
           "Authorization": `Bearer ${localStorage.getItem("token")}` // ✅ ajout auth ici aussi
