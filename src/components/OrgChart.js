@@ -71,7 +71,7 @@ function OrgChart() {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges] = useEdgesState([]);
   const { fitView } = useReactFlow();
-  const [positions, setPositions] = useState(JSON.parse(localStorage.getItem("orgchart_positions")) || {});
+  const [positions, setPositions] = useState({});
 
   const handleEdit = useCallback((id) => {
     navigate(`/collaborateurs/${id}`);
@@ -132,7 +132,7 @@ function OrgChart() {
         collaborators.forEach(collab => {
           formattedNodes.push({
             id: collab._id.toString(),
-            position: positions[collab._id] || { x: 300, y: yOffset + 300 },
+            position: collab.position || { x: 300, y: yOffset + 300 },
             data: {
               id: collab._id,
               name: `${collab.firstName} ${collab.lastName}`,
