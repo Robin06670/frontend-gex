@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import Sidebar from "../components/Sidebar";
 import axios from "axios";
 import Select from "react-select";
+import TimePicker from 'react-time-picker';
 
 const Timesheet = () => {
   const [clients, setClients] = useState([]);
@@ -337,21 +338,23 @@ const Timesheet = () => {
                 ))}
               </select>
 
-              <input
-                type="time"
-                name="startTime"
-                value={form.startTime}
-                onChange={handleChange}
-                className="p-2 border rounded"
-              />
+              <div className="p-2 border rounded">
+                <TimePicker
+                  onChange={(value) => setForm(prev => ({ ...prev, startTime: value }))}
+                  value={form.startTime}
+                  disableClock={true}
+                  clearIcon={null}
+                />
+              </div>
 
-              <input
-                type="time"
-                name="endTime"
-                value={form.endTime}
-                onChange={handleChange}
-                className="p-2 border rounded"
-              />
+              <div className="p-2 border rounded">
+                <TimePicker
+                  onChange={(value) => setForm(prev => ({ ...prev, endTime: value }))}
+                  value={form.endTime}
+                  disableClock={true}
+                  clearIcon={null}
+                />
+              </div>
 
               <button
                 onClick={handleAddOrUpdate}

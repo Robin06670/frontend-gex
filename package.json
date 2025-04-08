@@ -23,6 +23,7 @@
     "react-router-dom": "^7.2.0",
     "react-scripts": "^5.0.1",
     "react-select": "^5.10.1",
+    "react-time-picker": "^7.0.0",
     "reactflow": "^11.11.4",
     "recharts": "^2.15.1",
     "styled-components": "^6.1.15",
