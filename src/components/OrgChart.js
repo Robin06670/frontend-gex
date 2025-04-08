@@ -188,12 +188,21 @@ function OrgChart() {
       .catch(err => console.error("Erreur API :", err));
   }, [positions, handleEdit, handleDelete]);
 
-  const onNodeDragStop = (event, node) => {
-    setPositions(prev => {
-      const newPositions = { ...prev, [node.id]: node.position };
-      localStorage.setItem("orgchart_positions", JSON.stringify(newPositions));
-      return newPositions;
-    });
+  fetch(`${process.env.REACT_APP_API_BASE_URL}/api/collaborators/${nodes.id}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${localStorage.getItem("token")}`
+    },
+    body: JSON.stringify({ position: node.position })
+  })
+  .then(() => {
+    setPositions(prev => ({
+      ...prev,
+      [node.id]: node.position
+    }));
+  })
+  .catch(err => console.error("Erreur de sauvegarde de position :", err));  
   };
 
   useEffect(() => {
@@ -217,4 +226,4 @@ function OrgChart() {
       <Controls />
     </ReactFlow>
   );
-}
+
