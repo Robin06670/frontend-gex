@@ -112,7 +112,7 @@ function OrgChart() {
 
         // 📌 Détection des subordonnés ayant plusieurs managers
         collaborators.forEach(collab => {
-          if (collab.managers.length > 1) {
+          if (Array.isArray(collab.managers) && collab.managers.length > 1) {
             const key = collab.managers.sort().join("-");
             if (!intermediateNodes[key]) {
               intermediateNodes[key] = {
@@ -148,7 +148,7 @@ function OrgChart() {
 
         // 📌 Création des edges avec nœuds intermédiaires
         collaborators.forEach(collab => {
-          if (collab.managers.length === 1) {
+          if (Array.isArray(collab.managers) && collab.managers.length === 1) {
             formattedEdges.push({
               id: `e${collab.managers[0]}-${collab._id}`,
               source: collab.managers[0].toString(),
@@ -156,11 +156,11 @@ function OrgChart() {
               animated: true,
               style: { stroke: "#4b5563", strokeWidth: 2 },
             });
-          } else if (collab.managers.length > 1) {
+          } else if (Array.isArray(collab.managers) && collab.managers.length > 1) {
             const key = collab.managers.sort().join("-");
             const interNodeId = `inter-${key}`;
 
-            collab.managers.forEach(managerId => {
+            Array.isArray(collab.managers) && collab.managers.forEach(managerId => {
               if (!formattedEdges.some(edge => edge.source === managerId.toString() && edge.target === interNodeId)) {
                 formattedEdges.push({
                   id: `e${managerId}-${interNodeId}`,
