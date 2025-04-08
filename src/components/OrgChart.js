@@ -80,7 +80,7 @@ function OrgChart() {
   const handleDelete = useCallback((id) => {
     const confirmDelete = window.confirm("Êtes-vous sûr de vouloir supprimer ce collaborateur ?");
     if (confirmDelete) {
-      fetch(`http://localhost:5000/api/collaborators/${id}`, {
+      fetch(`${process.env.REACT_APP_API_BASE_URL}/collaborators/${id}`, {
         method: "DELETE",
         headers: {
           "Authorization": `Bearer ${localStorage.getItem("token")}` // ✅ ajout auth ici aussi
@@ -92,7 +92,7 @@ function OrgChart() {
   }, []);
 
   const loadNodes = useCallback(() => {
-    fetch("http://localhost:5000/api/collaborators", {
+    fetch(`${process.env.REACT_APP_API_BASE_URL}/collaborators`, {
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${localStorage.getItem("token")}` // ✅ Ajout du token ici

@@ -17,7 +17,7 @@ function Collaborators() {
           return;
         }
 
-        const response = await fetch("http://localhost:5000/api/collaborators", {
+        const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/collaborators`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",

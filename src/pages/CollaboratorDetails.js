@@ -24,7 +24,7 @@ const CollaboratorDetails = () => {
   useEffect(() => {
     const token = localStorage.getItem("token");
 
-    fetch("http://localhost:5000/api/collaborators", {
+    fetch(`${process.env.REACT_APP_API_BASE_URL}/collaborators`, {
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${token}`
@@ -75,8 +75,8 @@ const CollaboratorDetails = () => {
     }
 
     const url = isNew
-      ? "http://localhost:5000/api/collaborators"
-      : `http://localhost:5000/api/collaborators/${id}`;
+      ? `${process.env.REACT_APP_API_BASE_URL}/collaborators`
+      : `${process.env.REACT_APP_API_BASE_URL}/collaborators/${id}`;
 
     try {
       const token = localStorage.getItem("token");
