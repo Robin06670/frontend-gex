@@ -16,6 +16,9 @@ import Timesheet from "./pages/Timesheet"; // 👈 Tu ne l’as pas importée
 import CollaboratorBoard from "./pages/CollaboratorBoard"; // 👈 Tu ne l’as pas importée
 import TimesheetReadOnly from "./pages/TimesheetReadOnly"; // 👈 Tu ne l’as pas importée
 import CollaboratorStats from "./pages/CollaboratorStats";
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+
 
 export default function App() {
   const [role, setRole] = useState(null);
@@ -38,36 +41,38 @@ export default function App() {
   if (loading) return null; // 🔐 Ne rien afficher tant que le rôle n'est pas chargé
 
   return (
-    <Router>
-      <Routes>
-        {/* 🔹 Pages accessibles à tous */}
-        <Route path="/" element={<HomePage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/clients" element={<Clients />} />
-        <Route path="/timesheet" element={<Timesheet />} />
+    <LocalizationProvider dateAdapter={AdapterDateFns}>
+      <Router>
+        <Routes>
+          {/* 🔹 Pages accessibles à tous */}
+          <Route path="/" element={<HomePage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/clients" element={<Clients />} />
+          <Route path="/timesheet" element={<Timesheet />} />
 
-        {/* 🔹 Pages réservées à l’admin/expert */}
-        {role !== "collaborateur" && (
-          <>
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/collaborateurs" element={<Collaborators />} />
-            <Route path="/statistics" element={<Statistics />} />
-            <Route path="/fixed-costs" element={<FixedCosts />} />
-            <Route path="/clients/new" element={<ClientDetails />} />
-            <Route path="/clients/:id" element={<ClientDetails />} />
-            <Route path="/collaborateurs/new" element={<CollaboratorDetails />} />
-            <Route path="/collaborateurs/:id" element={<CollaboratorDetails />} />
-            <Route path="/collaborateurs/:id/clients" element={<CollaboratorClients />} />
-            <Route path="/collaborator-board" element={<CollaboratorBoard />} />
-            <Route path="/timesheet/:id" element={<TimesheetReadOnly />} />
-            <Route path="/stats/:id" element={<CollaboratorStats />} />
-            
+          {/* 🔹 Pages réservées à l’admin/expert */}
+          {role !== "collaborateur" && (
+            <>
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/collaborateurs" element={<Collaborators />} />
+              <Route path="/statistics" element={<Statistics />} />
+              <Route path="/fixed-costs" element={<FixedCosts />} />
+              <Route path="/clients/new" element={<ClientDetails />} />
+              <Route path="/clients/:id" element={<ClientDetails />} />
+              <Route path="/collaborateurs/new" element={<CollaboratorDetails />} />
+              <Route path="/collaborateurs/:id" element={<CollaboratorDetails />} />
+              <Route path="/collaborateurs/:id/clients" element={<CollaboratorClients />} />
+              <Route path="/collaborator-board" element={<CollaboratorBoard />} />
+              <Route path="/timesheet/:id" element={<TimesheetReadOnly />} />
+              <Route path="/stats/:id" element={<CollaboratorStats />} />
+              
 
-          </>
-        )}
-      </Routes>
-    </Router>
+            </>
+          )}
+        </Routes>
+      </Router>
+    </LocalizationProvider>
   );
 }
