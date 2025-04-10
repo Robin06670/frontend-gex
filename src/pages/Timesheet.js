@@ -2,10 +2,6 @@ import React, { useEffect, useState } from "react";
 import Sidebar from "../components/Sidebar";
 import axios from "axios";
 import Select from "react-select";
-import { LocalizationProvider, TimePicker } from '@mui/x-date-pickers';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import dayjs from 'dayjs';
-import TextField from "@mui/material/TextField";
 
 
 const Timesheet = () => {
@@ -329,7 +325,6 @@ const Timesheet = () => {
               className="text-sm"
             />
 
-
               <select
                 name="task"
                 value={form.task}
@@ -342,63 +337,25 @@ const Timesheet = () => {
                 ))}
               </select>
 
-              <TimePicker
-                label="Heure de début"
-                value={form.startTime ? dayjs(`1970-01-01T${form.startTime}`) : null}
-                onChange={(newValue) => {
-                  const formatted = dayjs(newValue).format("HH:mm");
-                  setForm(prev => ({ ...prev, startTime: formatted }));
-                }}
-                ampm={false}
-                minutesStep={1}
-                shouldDisableTime={() => false}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    size="small"
-                    fullWidth
-                    sx={{
-                      '& .MuiInputBase-input': {
-                        padding: '6px 8px',
-                        fontSize: '0.85rem',
-                      },
-                      '& .MuiInputBase-root': {
-                        height: '40px',
-                      }
-                    }}
-                  />
-                )}
+              <input
+                type="time"
+                value={form.startTime}
+                onChange={(e) =>
+                  setForm((prev) => ({ ...prev, startTime: e.target.value }))
+                }
+                step="60" // toutes les minutes
+                className="border rounded px-2 py-1 h-10 text-sm"
               />
 
-              <TimePicker
-                label="Heure de fin"
-                value={form.endTime ? dayjs(`1970-01-01T${form.endTime}`) : null}
-                onChange={(newValue) => {
-                  const formatted = dayjs(newValue).format("HH:mm");
-                  setForm((prev) => ({ ...prev, endTime: formatted }));
-                }}
-                ampm={false}
-                minutesStep={1}
-                shouldDisableTime={() => false}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    size="small"
-                    fullWidth
-                    sx={{
-                      '& .MuiInputBase-input': {
-                        padding: '6px 8px',
-                        fontSize: '0.85rem',
-                      },
-                      '& .MuiInputBase-root': {
-                        height: '40px',
-                      }
-                    }}
-                  />
-                )}
+              <input
+                type="time"
+                value={form.endTime}
+                onChange={(e) =>
+                  setForm((prev) => ({ ...prev, endTime: e.target.value }))
+                }
+                step="60"
+                className="border rounded px-2 py-1 h-10 text-sm"
               />
-
-
 
               <button
                 onClick={handleAddOrUpdate}

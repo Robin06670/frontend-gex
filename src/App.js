@@ -16,8 +16,6 @@ import Timesheet from "./pages/Timesheet"; // 👈 Tu ne l’as pas importée
 import CollaboratorBoard from "./pages/CollaboratorBoard"; // 👈 Tu ne l’as pas importée
 import TimesheetReadOnly from "./pages/TimesheetReadOnly"; // 👈 Tu ne l’as pas importée
 import CollaboratorStats from "./pages/CollaboratorStats";
-import { LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 
 
 export default function App() {
@@ -41,7 +39,6 @@ export default function App() {
   if (loading) return null; // 🔐 Ne rien afficher tant que le rôle n'est pas chargé
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDateFns}>
       <Router>
         <Routes>
           {/* 🔹 Pages accessibles à tous */}
@@ -73,6 +70,5 @@ export default function App() {
           )}
         </Routes>
       </Router>
-    </LocalizationProvider>
   );
 }
