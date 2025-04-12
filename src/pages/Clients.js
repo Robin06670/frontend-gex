@@ -256,8 +256,19 @@ return (
         <table className="w-full border-collapse">
           <thead>
             <tr className="bg-gray-200">
-              <th className="p-2 text-sm md:text-base text-left cursor-pointer" onClick={() => toggleSortOrder("company")}>Entreprise <FaSort className="inline ml-1" /></th>
-              <th className="p-2 text-sm md:text-base text-left cursor-pointer" onClick={() => toggleSortOrder("activity")}>Activité <FaSort className="inline ml-1" /></th>
+            <th
+              className="p-2 text-xs md:text-sm text-left cursor-pointer whitespace-nowrap w-32"
+              onClick={() => toggleSortOrder("company")}
+            >
+              Entreprise <FaSort className="inline ml-1" />
+            </th>
+
+            <th
+              className="p-2 text-xs md:text-sm text-left cursor-pointer whitespace-nowrap w-32"
+              onClick={() => toggleSortOrder("activity")}
+            >
+              Activité <FaSort className="inline ml-1" />
+            </th>
 
               {isCollab && (
                 <>
