@@ -397,9 +397,12 @@ return (
                     let collaboratorId = null;
 
                     if (client.collaborator) {
+                      // 🛡️ On convertit le nom de collaborateur importé en texte propre
+                      const collaboratorName = String(client.collaborator || "").toLowerCase().trim();
+
                       const collaboratorFound = collaborators.find(
                         (c) =>
-                          `${c.firstName} ${c.lastName}`.toLowerCase().trim() === client.collaborator.toLowerCase().trim()
+                          `${c.firstName} ${c.lastName}`.toLowerCase().trim() === collaboratorName
                       );
 
                       if (collaboratorFound) {
