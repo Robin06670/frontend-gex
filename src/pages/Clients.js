@@ -256,8 +256,8 @@ return (
         <table className="w-full border-collapse">
           <thead>
             <tr className="bg-gray-200">
-              <th className="p-2 text-left cursor-pointer" onClick={() => toggleSortOrder("company")}>Entreprise <FaSort className="inline ml-1" /></th>
-              <th className="p-2 text-left cursor-pointer" onClick={() => toggleSortOrder("activity")}>Activité <FaSort className="inline ml-1" /></th>
+              <th className="p-2 text-sm md:text-base text-left cursor-pointer" onClick={() => toggleSortOrder("company")}>Entreprise <FaSort className="inline ml-1" /></th>
+              <th className="p-2 text-sm md:text-base text-left cursor-pointer" onClick={() => toggleSortOrder("activity")}>Activité <FaSort className="inline ml-1" /></th>
 
               {isCollab && (
                 <>
@@ -268,10 +268,10 @@ return (
 
               {!isCollab && (
                 <>
-                  <th className="p-2 text-left cursor-pointer" onClick={() => toggleSortOrder('feesAccounting')}>H. Comptables <FaSort className="inline ml-1" /></th>
-                  <th className="p-2 text-left cursor-pointer" onClick={() => toggleSortOrder('feesSocial')}>H. Sociales <FaSort className="inline ml-1" /></th>
-                  <th className="p-2 text-left cursor-pointer" onClick={() => toggleSortOrder('feesLegal')}>H. Juridiques <FaSort className="inline ml-1" /></th>
-                  <th className="p-2 text-left cursor-pointer" onClick={() => toggleSortOrder("margin")}>Marge <FaSort className="inline ml-1" /></th>
+                  <th className="p-2 text-sm md:text-base text-left cursor-pointer" onClick={() => toggleSortOrder('feesAccounting')}>H. Comptables <FaSort className="inline ml-1" /></th>
+                  <th className="p-2 text-sm md:text-base text-left cursor-pointer" onClick={() => toggleSortOrder('feesSocial')}>H. Sociales <FaSort className="inline ml-1" /></th>
+                  <th className="p-2 text-sm md:text-base text-left cursor-pointer" onClick={() => toggleSortOrder('feesLegal')}>H. Juridiques <FaSort className="inline ml-1" /></th>
+                  <th className="p-2 text-sm md:text-base text-left cursor-pointer" onClick={() => toggleSortOrder("margin")}>Marge <FaSort className="inline ml-1" /></th>
                   <th className="p-2 text-center">Actions</th>
                 </>
               )}
@@ -282,21 +282,23 @@ return (
               const margin = calculateMargin(client, client.collaborator, client.theoreticalTime);
               return (
                 <tr key={client._id} className="border-b hover:bg-gray-100">
-                  <td className="p-2">{client.company || "N/A"}</td>
-                  <td className="p-2">{client.activity || "Non spécifiée"}</td>
+                  <td className="p-2 text-sm md:text-base">{client.company || "N/A"}</td>
+                  <td className="p-2 text-sm md:text-base">{client.activity || "Non spécifiée"}</td>
 
                   {isCollab && (
                     <>
-                      <td className="p-2">{client.phone || "N/A"}</td>
-                      <td className="p-2">{client.email || "N/A"}</td>
+                      <td className="p-2 text-sm md:text-base">{client.phone || "N/A"}</td>
+                      <td className="p-2 text-sm md:text-base">{client.email || "N/A"}</td>
                     </>
                   )}
 
                   {!isCollab && (
                     <>
-                      <td className="p-2">{client.feesAccounting || 0} €</td>
-                      <td className="p-2">{client.feesSocial || 0} €</td>
-                      <td className="p-2">{client.feesLegal || 0} €</td>
+                      <td className="p-2 text-sm md:text-base">
+                        {Number(client.feesAccounting || 0).toFixed(2)} €
+                      </td>
+                      <td className="p-2 text-sm md:text-base">{client.feesSocial || 0} €</td>
+                      <td className="p-2 text-sm md:text-base">{client.feesLegal || 0} €</td>
                       <td className={`p-2 ${margin >= 0 ? "text-green-600" : "text-red-600"}`}>
                         {margin} €
                       </td>
