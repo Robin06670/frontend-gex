@@ -101,18 +101,42 @@ const Clients = () => {
       (client.activity && client.activity.toLowerCase().includes(searchTerm.toLowerCase()))
     )
     .sort((a, b) => {
-      if (sortBy === "company") return sortOrder === "asc" ? a.company.localeCompare(b.company) : b.company.localeCompare(a.company);
-      if (sortBy === "activity") return sortOrder === "asc" ? a.activity.localeCompare(b.activity) : b.activity.localeCompare(a.activity);
-      if (sortBy === "feesAccounting") return sortOrder === "asc" ? a.feesAccounting - b.feesAccounting : b.feesAccounting - a.feesAccounting;
-      if (sortBy === "feesSocial") return sortOrder === "asc" ? a.feesSocial - b.feesSocial : b.feesSocial - a.feesSocial;
-      if (sortBy === "feesLegal") return sortOrder === "asc" ? a.feesLegal - b.feesLegal : b.feesLegal - a.feesLegal;
+      if (sortBy === "company")
+        return sortOrder === "asc"
+          ? a.company.localeCompare(b.company)
+          : b.company.localeCompare(a.company);
+    
+      if (sortBy === "activity")
+        return sortOrder === "asc"
+          ? a.activity.localeCompare(b.activity)
+          : b.activity.localeCompare(a.activity);
+    
+      if (sortBy === "feesAccounting") {
+        const fa = Number(a.feesAccounting || 0);
+        const fb = Number(b.feesAccounting || 0);
+        return sortOrder === "asc" ? fa - fb : fb - fa;
+      }
+    
+      if (sortBy === "feesSocial") {
+        const fa = Number(a.feesSocial || 0);
+        const fb = Number(b.feesSocial || 0);
+        return sortOrder === "asc" ? fa - fb : fb - fa;
+      }
+    
+      if (sortBy === "feesLegal") {
+        const fa = Number(a.feesLegal || 0);
+        const fb = Number(b.feesLegal || 0);
+        return sortOrder === "asc" ? fa - fb : fb - fa;
+      }
+    
       if (sortBy === "margin") {
-        const marginA = calculateMargin(a.fees, a.collaborator, a.theoreticalTime);
-        const marginB = calculateMargin(b.fees, b.collaborator, b.theoreticalTime);
+        const marginA = calculateMargin(a, a.collaborator, a.theoreticalTime);
+        const marginB = calculateMargin(b, b.collaborator, b.theoreticalTime);
         return sortOrder === "asc" ? marginA - marginB : marginB - marginA;
       }
+    
       return 0;
-    });
+    });    
 
   // 📌 Changer l'ordre de tri
   const toggleSortOrder = (criteria) => {
