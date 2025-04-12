@@ -268,9 +268,24 @@ return (
 
               {!isCollab && (
                 <>
-                  <th className="p-2 text-sm md:text-base text-left cursor-pointer" onClick={() => toggleSortOrder('feesAccounting')}>H. Comptables <FaSort className="inline ml-1" /></th>
-                  <th className="p-2 text-sm md:text-base text-left cursor-pointer" onClick={() => toggleSortOrder('feesSocial')}>H. Sociales <FaSort className="inline ml-1" /></th>
-                  <th className="p-2 text-sm md:text-base text-left cursor-pointer" onClick={() => toggleSortOrder('feesLegal')}>H. Juridiques <FaSort className="inline ml-1" /></th>
+                  <th
+                    className="p-2 text-xs md:text-sm text-left cursor-pointer whitespace-nowrap"
+                    onClick={() => toggleSortOrder("feesAccounting")}
+                  >
+                    H. Comptables <FaSort className="inline ml-1" />
+                  </th>
+                  <th
+                    className="p-2 text-xs md:text-sm text-left cursor-pointer whitespace-nowrap"
+                    onClick={() => toggleSortOrder('feesSocial')}
+                  >
+                    H. Sociales <FaSort className="inline ml-1" />
+                  </th>
+                  <th
+                    className="p-2 text-xs md:text-sm text-left cursor-pointer whitespace-nowrap"
+                    onClick={() => toggleSortOrder('feesLegal')}
+                  >
+                    H. Juridiques <FaSort className="inline ml-1" />
+                  </th>
                   <th className="p-2 text-sm md:text-base text-left cursor-pointer" onClick={() => toggleSortOrder("margin")}>Marge <FaSort className="inline ml-1" /></th>
                   <th className="p-2 text-center">Actions</th>
                 </>
