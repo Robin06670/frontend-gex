@@ -414,12 +414,12 @@ return (
 
                   
                     const payload = {
-                      company: client.company?.trim() || "Sans nom",
-                      activity: client.activity?.trim() || "Non précisé",
-                      siren: client.siren?.trim() || "",
-                      email: client.email?.trim() || "",
-                      phone: client.phone?.trim() || "",
-                      address: client.address?.trim() || "",
+                      company: String(client.company || "").trim(),
+                      activity: String(client.activity || "").trim(),
+                      siren: String(client.siren || "").trim(),
+                      email: String(client.email || "").trim(),
+                      phone: String(client.phone || "").trim(),
+                      address: String(client.address || "").trim(),
                       employees: Number(client.employees || 0),
                       employeeRate: Number(client.employeeRate || 0),
                       feesAccounting: Number(client.feesAccounting || 0),
@@ -427,7 +427,8 @@ return (
                       feesLegal: Number(client.feesLegal || 0),
                       theoreticalTime: Number(client.theoreticalTime || 0),
                       ...(collaboratorId ? { collaborator: collaboratorId } : {})
-                    };                    
+                    };
+                             
                   
                     await axios.post(`${process.env.REACT_APP_API_BASE_URL}/api/clients`, payload, {
                       headers: { Authorization: `Bearer ${token}` },
