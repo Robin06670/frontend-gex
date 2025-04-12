@@ -276,18 +276,25 @@ return (
                   </th>
                   <th
                     className="p-2 text-xs md:text-sm text-left cursor-pointer whitespace-nowrap"
-                    onClick={() => toggleSortOrder('feesSocial')}
+                    onClick={() => toggleSortOrder("feesSocial")}
                   >
                     H. Sociales <FaSort className="inline ml-1" />
                   </th>
                   <th
                     className="p-2 text-xs md:text-sm text-left cursor-pointer whitespace-nowrap"
-                    onClick={() => toggleSortOrder('feesLegal')}
+                    onClick={() => toggleSortOrder("feesLegal")}
                   >
                     H. Juridiques <FaSort className="inline ml-1" />
                   </th>
-                  <th className="p-2 text-sm md:text-base text-left cursor-pointer" onClick={() => toggleSortOrder("margin")}>Marge <FaSort className="inline ml-1" /></th>
-                  <th className="p-2 text-center">Actions</th>
+                  <th
+                    className="p-2 text-xs md:text-sm text-left cursor-pointer whitespace-nowrap"
+                    onClick={() => toggleSortOrder("margin")}
+                  >
+                    Marge <FaSort className="inline ml-1" />
+                  </th>
+                  <th className="p-2 text-xs md:text-sm text-center whitespace-nowrap">
+                    Actions
+                  </th>
                 </>
               )}
             </tr>
